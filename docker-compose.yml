@@ -1,0 +1,56 @@
+services:
+  web:
+    build: .
+    ports:
+      - "9000:9000"
+    environment:
+      - DATABASE_URL=postgresql://cvmatcher:securepassword@db:5432/cvmatcher_db
+    env_file:
+      - .env
+    depends_on:
+      - db
+    volumes:
+      - ./app:/app/app
+    networks:
+      - cv-matcher-network
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3002:3002"
+    environment:
+      - REACT_APP_API_URL=http://localhost:9000/api
+    depends_on:
+      - web
+    networks:
+      - cv-matcher-network
+
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=cvmatcher_db
+      - POSTGRES_USER=cvmatcher
+      - POSTGRES_PASSWORD=securepassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-database.sql:/docker-entrypoint-initdb.d/init-database.sql
+    networks:
+      - cv-matcher-network
+
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - cv-matcher-network
+
+volumes:
+  postgres_data:
+
+networks:
+  cv-matcher-network:
+    driver: bridge

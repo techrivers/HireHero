@@ -1,0 +1,278 @@
+import React, { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { Settings, Save, Eye, EyeOff, Key, Folder } from 'lucide-react';
+import API_CONFIG from '../config/api';
+
+const Configuration = () => {
+  const [config, setConfig] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [showApiKey, setShowApiKey] = useState(false);
+  
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+    watch
+  } = useForm();
+
+  useEffect(() => {
+    // Set axios base URL
+    axios.defaults.baseURL = API_CONFIG.baseURL;
+    axios.defaults.timeout = API_CONFIG.timeout;
+    
+    fetchConfiguration();
+  }, []);
+
+  const fetchConfiguration = async () => {
+    try {
+      const response = await axios.get('/config/');
+      setConfig(response.data);
+      
+      // Set form values
+      setValue('cv_folder_name', response.data.cv_folder_name || '');
+      setValue('openai_api_key', response.data.openai_api_key ? '••••••••••••••••' : '');
+    } catch (error) {
+      // Config might not exist yet
+      setConfig({});
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onSubmit = async (data) => {
+    setSaving(true);
+    
+    try {
+      // Only send API key if it's not the masked value
+      const payload = {
+        cv_folder_name: data.cv_folder_name,
+      };
+      
+      if (data.openai_api_key && !data.openai_api_key.includes('••••')) {
+        payload.openai_api_key = data.openai_api_key;
+      }
+      
+      await axios.post('/config/', payload);
+      toast.success('Configuration saved successfully!');
+      
+      // Refresh config
+      fetchConfiguration();
+    } catch (error) {
+      const message = error.response?.data?.detail || 'Failed to save configuration';
+      toast.error(message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const testOpenAIConnection = async () => {
+    try {
+      const response = await axios.post('/config/test-openai');
+      toast.success('OpenAI API connection successful!');
+    } catch (error) {
+      const message = error.response?.data?.detail || 'OpenAI API test failed';
+      toast.error(message);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="container">
+        <div className="loading">
+          <div className="spinner" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container">
+      <div style={{ marginBottom: '32px' }}>
+        <h1 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '8px' }}>
+          Configuration
+        </h1>
+        <p style={{ color: '#718096' }}>
+          Configure your API keys and system settings
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {/* OpenAI Configuration */}
+        <div className="card">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+            <Key size={24} style={{ color: '#3182ce' }} />
+            <div>
+              <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '4px' }}>
+                OpenAI API Configuration
+              </h2>
+              <p style={{ fontSize: '14px', color: '#718096' }}>
+                Required for AI-powered CV analysis and matching
+              </p>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="openai_api_key">
+              OpenAI API Key
+            </label>
+            <div style={{ position: 'relative' }}>
+              <input
+                id="openai_api_key"
+                className="form-input"
+                type={showApiKey ? 'text' : 'password'}
+                placeholder="sk-..."
+                {...register('openai_api_key', { 
+                  required: !config?.openai_api_key ? 'OpenAI API key is required' : false
+                })}
+                style={{ paddingRight: '45px' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowApiKey(!showApiKey)}
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#718096'
+                }}
+              >
+                {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+            {errors.openai_api_key && (
+              <p className="error-text">{errors.openai_api_key.message}</p>
+            )}
+            <div style={{ fontSize: '12px', color: '#718096', marginTop: '4px' }}>
+              Get your API key from{' '}
+              <a 
+                href="https://platform.openai.com/api-keys" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ color: '#3182ce' }}
+              >
+                OpenAI Platform
+              </a>
+            </div>
+          </div>
+
+          {config?.openai_api_key && (
+            <button
+              type="button"
+              onClick={testOpenAIConnection}
+              className="btn btn-secondary"
+            >
+              Test Connection
+            </button>
+          )}
+        </div>
+
+        {/* CV Folder Configuration */}
+        <div className="card">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+            <Folder size={24} style={{ color: '#3182ce' }} />
+            <div>
+              <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '4px' }}>
+                CV Folder Configuration
+              </h2>
+              <p style={{ fontSize: '14px', color: '#718096' }}>
+                Specify the Google Drive folder containing your CV files
+              </p>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="cv_folder_name">
+              CV Folder Name
+            </label>
+            <input
+              id="cv_folder_name"
+              className="form-input"
+              type="text"
+              placeholder="e.g., CVs, Resumes, Candidates"
+              {...register('cv_folder_name', { 
+                required: 'CV folder name is required'
+              })}
+            />
+            {errors.cv_folder_name && (
+              <p className="error-text">{errors.cv_folder_name.message}</p>
+            )}
+            <div style={{ fontSize: '12px', color: '#718096', marginTop: '4px' }}>
+              This should match the exact name of your CV folder in Google Drive
+            </div>
+          </div>
+        </div>
+
+        {/* Save Button */}
+        <div className="card">
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={saving}
+          >
+            {saving ? (
+              <>
+                <div className="spinner" style={{ width: '16px', height: '16px' }} />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save size={16} />
+                Save Configuration
+              </>
+            )}
+          </button>
+        </div>
+      </form>
+
+      {/* Configuration Status */}
+      <div className="card">
+        <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '16px' }}>
+          Current Status
+        </h2>
+        
+        <div style={{ display: 'grid', gap: '12px' }}>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            padding: '12px 0',
+            borderBottom: '1px solid #e2e8f0'
+          }}>
+            <span>OpenAI API Key</span>
+            <span style={{ 
+              color: config?.openai_api_key ? '#38a169' : '#e53e3e',
+              fontWeight: '500'
+            }}>
+              {config?.openai_api_key ? 'Configured' : 'Not Set'}
+            </span>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            padding: '12px 0'
+          }}>
+            <span>CV Folder Name</span>
+            <span style={{ 
+              color: config?.cv_folder_name ? '#38a169' : '#e53e3e',
+              fontWeight: '500'
+            }}>
+              {config?.cv_folder_name || 'Not Set'}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Configuration;
