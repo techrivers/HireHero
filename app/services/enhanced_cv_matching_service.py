@@ -533,69 +533,69 @@ Write in a professional, executive summary style. Each summary should be 2-4 sen
                     if not file_content:
                         continue
                 
-                cv_text = document_parser.extract_text_from_file(file_content, file_info['name'])
-                print(f"  📄 CV Text Length: {len(cv_text) if cv_text else 0} characters")
-                print(f"  📝 CV Text Preview: {cv_text[:300] if cv_text else 'NO TEXT'}...")
-                if not cv_text or len(cv_text.strip()) < 100:
-                    print(f"  ⚠️ Insufficient text content extracted")
-                    continue
-                
-                # OPTIMIZATION: Quick pre-filter for exact matches and relevance
-                job_desc_lower = job_description.lower()
-                cv_text_lower = cv_text.lower()
-                
-                # Check for exact string match with better algorithm
-                job_phrases = [phrase.strip() for phrase in job_desc_lower.split() if len(phrase.strip()) > 3]
-                exact_phrase_matches = sum(1 for phrase in job_phrases if phrase in cv_text_lower)
-                exact_match_percentage = (exact_phrase_matches / len(job_phrases)) * 100 if job_phrases else 0
-                
-                # Check for substring match (copied text)
-                job_sentences = [s.strip() for s in job_description.split('.') if len(s.strip()) > 20]
-                has_sentence_match = any(sentence.lower() in cv_text_lower for sentence in job_sentences)
-                
-                print(f"  🔍 Exact match analysis: {exact_match_percentage:.1f}% phrase matches, sentence match: {has_sentence_match}")
-                
-                # AI-powered CV analysis
-                print(f"  🧠 Starting AI CV analysis for {file_info['name']}...")
-                cv_analysis = self.analyze_cv_with_ai(cv_text, job_requirements)
-                print(f"  ✅ CV Analysis Result: {cv_analysis}")
-                
-                # AI-powered match scoring
-                print(f"  🎯 Starting AI match scoring...")
-                relevance_score, match_analysis = self.calculate_intelligent_match_score(job_requirements, cv_analysis)
-                print(f"  📊 Match Analysis Result: {match_analysis}")
-                
-                # BOOST SCORE for exact matches (this fixes the exact match issue)
-                if has_sentence_match or exact_match_percentage > 70:
-                    boost = min(25, (100 - relevance_score) * 0.5)  # Boost by up to 25 points
-                    relevance_score = min(95, relevance_score + boost)  # Cap at 95%
-                    print(f"  🚀 EXACT MATCH BOOST: Score boosted to {relevance_score:.1f}%")
-                
-                # OPTIMIZATION: Only proceed if score >= 50% OR has string match
-                has_string_match = exact_match_percentage > 30 or has_sentence_match
-                if relevance_score < 50 and not has_string_match:
-                    print(f"  ⏭️ Skipping CV (score: {relevance_score:.1f}%, no significant match)")
-                    continue
-                
-                # Skip very low relevance matches (keep original threshold for safety)
-                if relevance_score < 20:
-                    print(f"  ⏭️ Skipping low relevance match: {relevance_score:.1f}%")
-                    continue
-                
-                # Store CV data for potential inclusion in top 6
-                cv_data = {
-                    "file_info": file_info,
-                    "cv_analysis": cv_analysis,
-                    "match_analysis": match_analysis,
-                    "relevance_score": relevance_score,
-                    "cv_text": cv_text,
-                    "has_string_match": has_string_match,
-                    "exact_match_percentage": exact_match_percentage,
-                    "has_sentence_match": has_sentence_match
-                }
-                all_cv_results.append(cv_data)
-                
-                print(f"  ✅ Qualified CV: {relevance_score:.1f}% ({'EXACT MATCH' if has_sentence_match else 'with string match' if has_string_match else 'score ≥50%'})")
+                    cv_text = document_parser.extract_text_from_file(file_content, file_info['name'])
+                    print(f"  📄 CV Text Length: {len(cv_text) if cv_text else 0} characters")
+                    print(f"  📝 CV Text Preview: {cv_text[:300] if cv_text else 'NO TEXT'}...")
+                    if not cv_text or len(cv_text.strip()) < 100:
+                        print(f"  ⚠️ Insufficient text content extracted")
+                        continue
+                    
+                    # OPTIMIZATION: Quick pre-filter for exact matches and relevance
+                    job_desc_lower = job_description.lower()
+                    cv_text_lower = cv_text.lower()
+                    
+                    # Check for exact string match with better algorithm
+                    job_phrases = [phrase.strip() for phrase in job_desc_lower.split() if len(phrase.strip()) > 3]
+                    exact_phrase_matches = sum(1 for phrase in job_phrases if phrase in cv_text_lower)
+                    exact_match_percentage = (exact_phrase_matches / len(job_phrases)) * 100 if job_phrases else 0
+                    
+                    # Check for substring match (copied text)
+                    job_sentences = [s.strip() for s in job_description.split('.') if len(s.strip()) > 20]
+                    has_sentence_match = any(sentence.lower() in cv_text_lower for sentence in job_sentences)
+                    
+                    print(f"  🔍 Exact match analysis: {exact_match_percentage:.1f}% phrase matches, sentence match: {has_sentence_match}")
+                    
+                    # AI-powered CV analysis
+                    print(f"  🧠 Starting AI CV analysis for {file_info['name']}...")
+                    cv_analysis = self.analyze_cv_with_ai(cv_text, job_requirements)
+                    print(f"  ✅ CV Analysis Result: {cv_analysis}")
+                    
+                    # AI-powered match scoring
+                    print(f"  🎯 Starting AI match scoring...")
+                    relevance_score, match_analysis = self.calculate_intelligent_match_score(job_requirements, cv_analysis)
+                    print(f"  📊 Match Analysis Result: {match_analysis}")
+                    
+                    # BOOST SCORE for exact matches (this fixes the exact match issue)
+                    if has_sentence_match or exact_match_percentage > 70:
+                        boost = min(25, (100 - relevance_score) * 0.5)  # Boost by up to 25 points
+                        relevance_score = min(95, relevance_score + boost)  # Cap at 95%
+                        print(f"  🚀 EXACT MATCH BOOST: Score boosted to {relevance_score:.1f}%")
+                    
+                    # OPTIMIZATION: Only proceed if score >= 50% OR has string match
+                    has_string_match = exact_match_percentage > 30 or has_sentence_match
+                    if relevance_score < 50 and not has_string_match:
+                        print(f"  ⏭️ Skipping CV (score: {relevance_score:.1f}%, no significant match)")
+                        continue
+                    
+                    # Skip very low relevance matches (keep original threshold for safety)
+                    if relevance_score < 20:
+                        print(f"  ⏭️ Skipping low relevance match: {relevance_score:.1f}%")
+                        continue
+                    
+                    # Store CV data for potential inclusion in top 6
+                    cv_data = {
+                        "file_info": file_info,
+                        "cv_analysis": cv_analysis,
+                        "match_analysis": match_analysis,
+                        "relevance_score": relevance_score,
+                        "cv_text": cv_text,
+                        "has_string_match": has_string_match,
+                        "exact_match_percentage": exact_match_percentage,
+                        "has_sentence_match": has_sentence_match
+                    }
+                    all_cv_results.append(cv_data)
+                    
+                    print(f"  ✅ Qualified CV: {relevance_score:.1f}% ({'EXACT MATCH' if has_sentence_match else 'with string match' if has_string_match else 'score ≥50%'})")
                 
                 except Exception as e:
                     print(f"❌ Error processing {file_info['name']}: {e}")

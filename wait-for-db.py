@@ -14,7 +14,7 @@ load_dotenv()
 
 def wait_for_db():
     """Wait for database to be ready."""
-    database_url = os.getenv("DATABASE_URL", "postgresql://cvmatcher:securepassword@db:5432/cvmatcher_db")
+    database_url = os.getenv("DATABASE_URL")
     
     print("🔄 Waiting for database to be ready...")
     

@@ -30,10 +30,10 @@ app.add_middleware(
 )
 
 # Create database tables on startup
-@app.on_event("startup")
-async def startup_event():
-    create_tables()
-    print("Database tables created successfully")
+# @app.on_event("startup")
+# async def startup_event():
+#     create_tables()
+#     print("Database tables created successfully")
 
 # Include routers with /api prefix
 app.include_router(auth_router, prefix="/api")
