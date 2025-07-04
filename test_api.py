@@ -9,7 +9,7 @@ import time
 from typing import Dict, Any
 
 class CVMatcherTester:
-    def __init__(self, base_url: str = "http://localhost:8000"):
+    def __init__(self, base_url: str = "http://localhost:9000"):
         self.base_url = base_url
         self.access_token = None
         self.headers = {"Content-Type": "application/json"}
@@ -40,7 +40,7 @@ class CVMatcherTester:
         }
         
         try:
-            response = requests.post(f"{self.base_url}/auth/register", json=user_data, headers=self.headers)
+            response = requests.post(f"{self.base_url}/api/auth/register", json=user_data, headers=self.headers)
             if response.status_code == 200:
                 print("✅ User registration successful")
                 return True
@@ -64,7 +64,7 @@ class CVMatcherTester:
         }
         
         try:
-            response = requests.post(f"{self.base_url}/auth/login", json=login_data, headers=self.headers)
+            response = requests.post(f"{self.base_url}/api/auth/login", json=login_data, headers=self.headers)
             if response.status_code == 200:
                 data = response.json()
                 self.access_token = data["access_token"]
@@ -101,14 +101,14 @@ class CVMatcherTester:
         
         # Test getting config (should exist but be empty)
         try:
-            response = requests.get(f"{self.base_url}/config/", headers=self.headers)
+            response = requests.get(f"{self.base_url}/api/config/", headers=self.headers)
             if response.status_code == 200:
                 print("✅ Get config successful")
             else:
                 print(f"ℹ️  Config not found (normal for new user): {response.status_code}")
             
             # Test setup status
-            response = requests.get(f"{self.base_url}/config/setup-status", headers=self.headers)
+            response = requests.get(f"{self.base_url}/api/config/setup-status", headers=self.headers)
             if response.status_code == 200:
                 status = response.json()
                 print(f"✅ Setup status: {status}")
@@ -126,7 +126,7 @@ class CVMatcherTester:
         print("📁 Testing Google Drive auth URL...")
         
         try:
-            response = requests.get(f"{self.base_url}/google-drive/auth", headers=self.headers)
+            response = requests.get(f"{self.base_url}/api/google-drive/auth", headers=self.headers)
             if response.status_code == 200:
                 data = response.json()
                 print("✅ Google Drive auth URL generated")
@@ -144,7 +144,7 @@ class CVMatcherTester:
         print("📁 Testing Google Drive status...")
         
         try:
-            response = requests.get(f"{self.base_url}/google-drive/status", headers=self.headers)
+            response = requests.get(f"{self.base_url}/api/google-drive/status", headers=self.headers)
             if response.status_code == 200:
                 status = response.json()
                 print(f"✅ Google Drive status: {status['message']}")
@@ -161,7 +161,7 @@ class CVMatcherTester:
         print("📊 Testing matching statistics...")
         
         try:
-            response = requests.get(f"{self.base_url}/cv-matching/stats", headers=self.headers)
+            response = requests.get(f"{self.base_url}/api/cv-matching/stats", headers=self.headers)
             if response.status_code == 200:
                 stats = response.json()
                 print(f"✅ Matching stats: {stats}")
@@ -178,7 +178,7 @@ class CVMatcherTester:
         print("📋 Testing match history...")
         
         try:
-            response = requests.get(f"{self.base_url}/cv-matching/history", headers=self.headers)
+            response = requests.get(f"{self.base_url}/api/cv-matching/history", headers=self.headers)
             if response.status_code == 200:
                 history = response.json()
                 print(f"✅ Match history: {len(history)} entries")
@@ -241,7 +241,7 @@ def main():
     import argparse
     
     parser = argparse.ArgumentParser(description="Test CV Matcher Agent API")
-    parser.add_argument("--url", default="http://localhost:8000", help="Base URL of the API")
+    parser.add_argument("--url", default="http://localhost:9000", help="Base URL of the API")
     parser.add_argument("--wait", type=int, default=0, help="Wait time before starting tests")
     
     args = parser.parse_args()

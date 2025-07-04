@@ -63,6 +63,7 @@ class GoogleDriveCallback(BaseModel):
 # CV Matching Schemas
 class MatchRequest(BaseModel):
     job_description: str
+    max_cvs: Optional[int] = 6
 
 class CVMatch(BaseModel):
     cv_filename: str

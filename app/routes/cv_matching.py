@@ -6,7 +6,7 @@ import io
 from app.models import get_db
 from app.models.models import User, MatchLog, MatchResult
 from app.models.schemas import MatchRequest, MatchResponse, EnhancedMatchResponse, MatchLogResponse, MatchResultResponse
-from app.services.enhanced_cv_matching_service import enhanced_cv_matching_service
+from app.services.universal_cv_matching_service import universal_cv_matching_service
 from app.services.user_config_service import user_config_service
 from app.services.google_drive_service import google_drive_service
 from app.routes.auth import get_current_user_dependency
@@ -31,15 +31,16 @@ async def match_cvs_to_job(
         )
     
     try:
-        # Run the enhanced CV matching in a task that can be cancelled
+        # Run the universal CV matching in a task that can be cancelled
         async def run_cv_matching():
-            return enhanced_cv_matching_service.process_enhanced_cv_matching(
+            return await universal_cv_matching_service.process_universal_cv_matching(
                 db, 
                 current_user.id, 
-                match_request.job_description
+                match_request.job_description,
+                match_request.max_cvs
             )
         
-        # Run enhanced CV matching without asyncio timeout (let other timeouts handle it)
+        # Run universal CV matching without asyncio timeout (let other timeouts handle it)
         result = await run_cv_matching()
         return result
             
