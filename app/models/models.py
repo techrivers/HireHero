@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, ForeignKey, Float
+from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, ForeignKey, Float, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .database import Base
@@ -16,6 +16,7 @@ class User(Base):
     # Relationships
     user_configs = relationship("UserConfig", back_populates="user", cascade="all, delete-orphan")
     match_logs = relationship("MatchLog", back_populates="user", cascade="all, delete-orphan")
+    chat_conversations = relationship("ChatConversation", back_populates="user", cascade="all, delete-orphan")
 
 class UserConfig(Base):
     __tablename__ = "user_configs"
@@ -65,3 +66,30 @@ class MatchResult(Base):
     
     # Relationships
     match_log = relationship("MatchLog", back_populates="match_results")
+
+class ChatConversation(Base):
+    __tablename__ = "chat_conversations"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    session_id = Column(String, nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    is_active = Column(Boolean, default=True)
+    
+    # Relationships
+    user = relationship("User", back_populates="chat_conversations")
+    messages = relationship("ChatMessage", back_populates="conversation", cascade="all, delete-orphan")
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    conversation_id = Column(Integer, ForeignKey("chat_conversations.id"), nullable=False)
+    role = Column(String, nullable=False)  # 'user' or 'assistant'
+    content = Column(Text, nullable=False)
+    message_metadata = Column(JSON, nullable=True)  # Store additional data like intent, actions, etc.
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relationships
+    conversation = relationship("ChatConversation", back_populates="messages")

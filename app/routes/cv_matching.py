@@ -52,9 +52,16 @@ def get_match_history(
         MatchLog.user_id == current_user.id
     ).order_by(MatchLog.created_at.desc()).limit(limit).all()
     
+    # Add results to each match log
+    for match_log in match_logs:
+        results = db.query(MatchResult).filter(
+            MatchResult.match_log_id == match_log.id
+        ).order_by(MatchResult.relevance_score.desc()).limit(5).all()
+        match_log.results = results
+    
     return match_logs
 
-@router.get("/history/{match_log_id}", response_model=List[MatchResultResponse])
+@router.get("/history/{match_log_id}", response_model=MatchLogResponse)
 def get_match_results(
     match_log_id: int,
     current_user: User = Depends(get_current_user_dependency),
@@ -75,7 +82,10 @@ def get_match_results(
         MatchResult.match_log_id == match_log_id
     ).order_by(MatchResult.relevance_score.desc()).all()
     
-    return match_results
+    # Add results to match log
+    match_log.results = match_results
+    
+    return match_log
 
 @router.delete("/history/{match_log_id}")
 def delete_match_log(

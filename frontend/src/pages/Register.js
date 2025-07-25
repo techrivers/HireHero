@@ -39,7 +39,7 @@ const Register = () => {
       <div className="card" style={{ width: '100%', maxWidth: '400px' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <h1 style={{ fontSize: '28px', fontWeight: '700', color: '#3182ce', marginBottom: '8px' }}>
-            CV Matcher Agent
+            Resume Matcher Agent
           </h1>
           <p style={{ color: '#718096' }}>Create your account</p>
         </div>

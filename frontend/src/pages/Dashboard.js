@@ -98,7 +98,7 @@ const Dashboard = () => {
           Dashboard
         </h1>
         <p style={{ color: '#718096' }}>
-          Welcome to your CV Matcher Agent dashboard
+          Welcome to your Resume Matcher Agent dashboard
         </p>
       </div>
 

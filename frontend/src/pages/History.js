@@ -104,7 +104,7 @@ const History = () => {
           Matching History
         </h1>
         <p style={{ color: '#718096' }}>
-          View and manage your previous CV matching sessions
+          View and manage your previous Resume matching sessions
         </p>
       </div>
 
@@ -120,7 +120,7 @@ const History = () => {
               No Matching History
             </h3>
             <p>
-              You haven't performed any CV matching yet. Start by creating your first match!
+              You haven't performed any resume matching yet. Start by creating your first match!
             </p>
           </div>
         </div>
@@ -141,7 +141,7 @@ const History = () => {
                     marginBottom: '8px',
                     color: '#2d3748'
                   }}>
-                    {match.job_title || `Match #${match.id}`}
+                    {match.job_description ? `Job Match #${match.id}` : `Match #${match.id}`}
                   </h3>
                   
                   <div style={{ 
@@ -237,13 +237,13 @@ const History = () => {
                         }}
                       >
                         <span style={{ fontWeight: '500' }}>
-                          {result.filename}
+                          {result.cv_filename}
                         </span>
                         <span style={{ 
-                          color: getScoreColor(result.score),
+                          color: getScoreColor(result.relevance_score),
                           fontWeight: '600'
                         }}>
-                          {result.score}%
+                          {Math.round(result.relevance_score)}%
                         </span>
                       </div>
                     ))}
@@ -351,18 +351,18 @@ const History = () => {
                       marginBottom: '8px'
                     }}>
                       <span style={{ fontWeight: '500' }}>
-                        {result.filename}
+                        {result.cv_filename}
                       </span>
                       <span style={{ 
-                        color: getScoreColor(result.score),
+                        color: getScoreColor(result.relevance_score),
                         fontWeight: '600'
                       }}>
-                        {result.score}%
+                        {Math.round(result.relevance_score)}%
                       </span>
                     </div>
-                    {result.reasoning && (
+                    {(result.candidate_summary || result.candidate_name) && (
                       <p style={{ fontSize: '12px', color: '#718096' }}>
-                        {result.reasoning}
+                        {result.candidate_summary || result.candidate_name}
                       </p>
                     )}
                   </div>

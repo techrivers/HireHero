@@ -575,7 +575,7 @@ const CVMatching = () => {
     <div className="container">
       <div style={{ marginBottom: '32px' }}>
         <h1 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '8px' }}>
-          CV Matching
+          Resume Matching
           <span style={{ fontSize: '12px', color: '#a0a0a0', marginLeft: '10px' }}>v2.0</span>
         </h1>
         <p style={{ color: '#718096' }}>

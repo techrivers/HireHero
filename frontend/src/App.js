@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import CVMatching from './pages/CVMatching';
+import ChatAgent from './pages/ChatAgent';
 import Configuration from './pages/Configuration';
 import GoogleDriveSetup from './pages/GoogleDriveSetup';
 import History from './pages/History';
@@ -31,6 +32,7 @@ function App() {
         ) : (
           <>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/chat-agent" element={<ChatAgent />} />
             <Route path="/cv-matching" element={<CVMatching />} />
             <Route path="/configuration" element={<Configuration />} />
             <Route path="/google-drive-setup" element={<GoogleDriveSetup />} />

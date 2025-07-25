@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from app.models import create_tables
-from app.routes import auth_router, google_drive_router, config_router, cv_matching_router
+from app.routes import auth_router, google_drive_router, config_router, cv_matching_router, chat_agent_router
 import os
 from dotenv import load_dotenv
 
@@ -11,8 +11,8 @@ load_dotenv()
 
 # Create FastAPI app
 app = FastAPI(
-    title="CV Matcher Agent",
-    description="AI-powered CV matching system with Google Drive integration",
+    title="Resume Matcher Agent",
+    description="AI-powered Resume matching system with Google Drive integration",
     version="1.0.0"
 )
 
@@ -40,6 +40,7 @@ app.include_router(auth_router, prefix="/api")
 app.include_router(google_drive_router, prefix="/api")
 app.include_router(config_router, prefix="/api")
 app.include_router(cv_matching_router, prefix="/api")
+app.include_router(chat_agent_router, prefix="/api")
 
 @app.get("/", response_class=HTMLResponse)
 async def root():
@@ -48,7 +49,7 @@ async def root():
     <!DOCTYPE html>
     <html>
     <head>
-        <title>CV Matcher Agent</title>
+        <title>Resume Matcher Agent</title>
         <style>
             body { font-family: Arial, sans-serif; margin: 40px; }
             .header { color: #2c3e50; }
@@ -61,8 +62,8 @@ async def root():
         </style>
     </head>
     <body>
-        <h1 class="header">🤖 CV Matcher Agent API</h1>
-        <p>Welcome to the CV Matcher Agent - an AI-powered system for matching CVs to job descriptions.</p>
+        <h1 class="header">🤖 Resume Matcher Agent API</h1>
+        <p>Welcome to the Resume Matcher Agent - an AI-powered system for matching CVs to job descriptions.</p>
         
         <div class="section">
             <h2>📚 API Documentation</h2>
@@ -142,7 +143,7 @@ async def health_check():
     """Health check endpoint."""
     return {
         "status": "healthy",
-        "service": "CV Matcher Agent",
+        "service": "Resume Matcher Agent",
         "version": "1.0.0"
     }
 

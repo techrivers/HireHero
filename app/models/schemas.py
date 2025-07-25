@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from datetime import datetime
 
 # User Schemas
@@ -134,6 +134,7 @@ class MatchLogResponse(BaseModel):
     total_cvs_processed: int
     top_matches_count: int
     created_at: datetime
+    results: Optional[List['MatchResultResponse']] = None
     
     class Config:
         from_attributes = True
@@ -150,3 +151,44 @@ class MatchResultResponse(BaseModel):
     
     class Config:
         from_attributes = True
+
+# Chat Schemas
+class ChatMessageRequest(BaseModel):
+    message: str
+    session_id: Optional[str] = None
+
+class ChatMessageResponse(BaseModel):
+    message: str
+    action: str  # continue, search, show_results, configure
+    suggestions: List[str] = []
+    results: Optional[Dict[str, Any]] = None
+    session_id: str
+    timestamp: str
+
+class ChatConversationResponse(BaseModel):
+    id: int
+    session_id: str
+    created_at: datetime
+    updated_at: datetime
+    is_active: bool
+    message_count: int
+    
+    class Config:
+        from_attributes = True
+
+class ChatMessageHistoryResponse(BaseModel):
+    id: int
+    role: str
+    content: str
+    message_metadata: Optional[Dict[str, Any]] = None
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+# Search Execution Schema
+class SearchExecutionRequest(BaseModel):
+    session_id: str
+
+# Rebuild models to resolve forward references
+MatchLogResponse.model_rebuild()

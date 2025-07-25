@@ -7,7 +7,8 @@ import {
   Settings, 
   History, 
   HardDrive,
-  LogOut 
+  LogOut,
+  MessageCircle
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -16,6 +17,7 @@ const Navbar = () => {
 
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { path: '/chat-agent', label: 'AI Chat', icon: MessageCircle },
     { path: '/cv-matching', label: 'CV Matching', icon: FileSearch },
     { path: '/configuration', label: 'Configuration', icon: Settings },
     { path: '/google-drive-setup', label: 'Google Drive', icon: HardDrive },
@@ -27,7 +29,7 @@ const Navbar = () => {
       <div className="container">
         <div className="nav-content">
           <Link to="/dashboard" className="nav-brand">
-            CV Matcher Agent
+            Resume Matcher Agent
           </Link>
           
           <div className="nav-links">
