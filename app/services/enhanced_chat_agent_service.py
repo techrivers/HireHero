@@ -305,17 +305,14 @@ Return JSON:
         }
     
     def _generate_conversational_response_sync(self, user_id: int, message: str, context: Dict[str, Any], db: Session) -> Dict[str, Any]:
-        """Generate conversational response synchronously (same pattern as CV matching)."""
+        """Generate conversational response synchronously (RESTORED ORIGINAL LOGIC)."""
         try:
-            # Analyze user intent synchronously
+            # Use the ORIGINAL intent-based approach that was working
             intent_analysis = self._analyze_conversation_intent_sync(message, context)
             
-#             print(f"🎯 Intent analysis: {intent_analysis['intent']}")
-            raw_intent = intent_analysis['intent']
-            intent_parts = raw_intent.split("/")
-            primary_intent = intent_parts[0]  # e.g. 'greeting'
+            print(f"🎯 Intent analysis: {intent_analysis['intent']}")
 
-            # Handle different conversation flows
+            # Handle different conversation flows (ORIGINAL WORKING LOGIC)
             if intent_analysis['intent'] == 'greeting':
                 return self._handle_greeting_sync(context)
             
@@ -329,11 +326,71 @@ Return JSON:
                 return self._handle_refinement_sync(intent_analysis, context)
             
             else:
+                # ONLY this part gets OpenAI intelligence for general questions
                 return self._handle_general_conversation_sync(message, context)
                 
         except Exception as e:
             print(f"❌ Error generating conversational response: {e}")
             return self._create_error_response("I encountered an issue processing your message.")
+    
+    def _generate_smart_suggestions(self, user_message: str, ai_response: str, cv_count: int) -> List[str]:
+        """Generate contextual suggestions based on the conversation."""
+        message_lower = user_message.lower()
+        response_lower = ai_response.lower()
+        
+        # CV/Recruitment related suggestions
+        if any(word in message_lower for word in ['cv', 'candidate', 'job', 'hire', 'recruit', 'find', 'search']):
+            return [
+                'Find candidates for a specific role',
+                'Search by skills and experience',
+                'Show me all available candidates',
+                'Help me refine my requirements'
+            ]
+        
+        # General advice/recommendations
+        elif any(word in message_lower for word in ['recommend', 'advice', 'suggest', 'help', 'should', 'how']):
+            return [
+                'Tell me more details',
+                'Give me specific examples',
+                'What else should I consider?',
+                'Help me with recruitment needs'
+            ]
+        
+        # Technology/skills related
+        elif any(word in message_lower for word in ['technology', 'programming', 'software', 'development', 'tech']):
+            return [
+                'Find developers with these skills',
+                'What other technologies to consider?',
+                'Show me tech professionals',
+                'Recommend related skills'
+            ]
+        
+        # Business/strategy related
+        elif any(word in message_lower for word in ['business', 'strategy', 'company', 'startup', 'growth']):
+            return [
+                'Find business professionals',
+                'Tell me more about this topic',
+                'Help with team building',
+                'Strategic hiring advice'
+            ]
+        
+        # Greeting/general
+        elif any(word in message_lower for word in ['hello', 'hi', 'hey', 'thanks', 'thank']):
+            return [
+                'Find candidates for a role',
+                'Ask me anything',
+                'Get recruitment advice',
+                f'Search through my {cv_count} CVs'
+            ]
+        
+        # Default suggestions for any other topic
+        else:
+            return [
+                'Tell me more about this',
+                'Ask me another question',
+                'Help me find candidates',
+                'Get specific recommendations'
+            ]
     
     def _analyze_conversation_intent_sync(self, message: str, context: Dict[str, Any]) -> Dict[str, Any]:
         """Analyze conversation intent synchronously (with fallback like CV matching)."""
@@ -384,7 +441,7 @@ Return JSON:
             return self._create_fallback_intent_analysis(message)
     
     def _create_fallback_intent_analysis(self, message: str) -> Dict[str, Any]:
-        """Create fallback intent analysis (same pattern as instant service)."""
+        """Create fallback intent analysis (enhanced for candidate inquiries)."""
         message_lower = message.lower()
         
         # Determine intent based on keywords
@@ -426,7 +483,19 @@ Return JSON:
                 'needs_detailed_processing': True
             }
         
-        elif any(word in message_lower for word in ['why', 'explain', 'tell me about']):
+        # Enhanced candidate inquiry detection
+        elif any(word in message_lower for word in [
+            'why', 'explain', 'tell me about', 'detail', 'details', 'summary', 'analyze', 'review',
+            'candidate', 'profile', 'experience', 'background', 'qualification', 'skills',
+            'strength', 'weakness', 'suitable', 'fit', 'good match', 'recommend',
+            'cv', 'resume', 'about him', 'about her', 'about this person', 'more info'
+        ]):
+            return {'intent': 'candidate_inquiry', 'extracted_info': {}, 'needs_detailed_processing': True}
+        
+        # Check if message contains potential candidate names (capitalized words)
+        words = message.split()
+        has_potential_name = any(word[0].isupper() and len(word) > 2 for word in words if word.isalpha())
+        if has_potential_name:
             return {'intent': 'candidate_inquiry', 'extracted_info': {}, 'needs_detailed_processing': True}
         
         else:
@@ -755,37 +824,196 @@ Let me help you refine your search. What specific requirements are most importan
             return {'total_cvs_processed': 0, 'processing_time': 'Error', 'matches': []}
     
     def _handle_candidate_inquiry_sync(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle candidate inquiries synchronously."""
+        """Handle candidate inquiries with detailed CV analysis."""
         last_results = context.get('last_search_results', [])
+        cv_summaries = context.get('cv_summaries', [])
         
-        if last_results:
-            top_candidate = last_results[0]
-            candidate_name = "Top candidate"
-            if isinstance(top_candidate.get('summary'), dict):
-                candidate_name = top_candidate['summary'].get('candidate_name', 'Top candidate')
+        print(f"🔍 DEBUG: Candidate inquiry - Last results: {len(last_results)}, CV summaries: {len(cv_summaries)}")
+        
+        if last_results and cv_summaries:
+            # Try to find the specific candidate being asked about
+            candidate_to_analyze = None
+            
+            # Get the last user message to see if they mentioned a specific candidate
+            messages = context.get('messages', [])
+            last_user_message = ""
+            for msg in reversed(messages):
+                if msg.get('role') == 'user':
+                    last_user_message = msg.get('content', '').lower()
+                    break
+            
+            print(f"🔍 DEBUG: Last user message: '{last_user_message}'")
+            
+            # Try to match candidate by name or position in results
+            if any(word in last_user_message for word in ['first', 'top', '1st', 'number 1']):
+                candidate_to_analyze = last_results[0]
+            elif any(word in last_user_message for word in ['second', '2nd', 'number 2']) and len(last_results) > 1:
+                candidate_to_analyze = last_results[1]
+            elif any(word in last_user_message for word in ['third', '3rd', 'number 3']) and len(last_results) > 2:
+                candidate_to_analyze = last_results[2]
+            else:
+                # Try to match by candidate name (enhanced)
+                for candidate in last_results:
+                    candidate_name = ""
+                    if isinstance(candidate.get('summary'), dict):
+                        candidate_name = candidate['summary'].get('candidate_name', '').lower()
+                    
+                    # Also check filename for names
+                    filename = candidate.get('filename', '').lower()
+                    
+                    # Extract potential names from filename
+                    if not candidate_name and filename:
+                        # Remove extensions and common words
+                        clean_filename = filename.replace('.pdf', '').replace('.doc', '').replace('.docx', '').replace('_', ' ').replace('-', ' ')
+                        candidate_name = clean_filename
+                    
+                    print(f"🔍 DEBUG: Checking candidate: '{candidate_name}' vs user message: '{last_user_message}'")
+                    
+                    if candidate_name:
+                        # Check if any part of the candidate name appears in the user message
+                        name_parts = [part for part in candidate_name.split() if len(part) > 2]
+                        for name_part in name_parts:
+                            if name_part in last_user_message:
+                                candidate_to_analyze = candidate
+                                print(f"🔍 DEBUG: Found name match: '{name_part}'")
+                                break
+                        if candidate_to_analyze:
+                            break
+                
+                # If no specific match, analyze the top candidate
+                if not candidate_to_analyze:
+                    candidate_to_analyze = last_results[0]
+            
+            print(f"🔍 DEBUG: Selected candidate: {candidate_to_analyze.get('filename', 'Unknown')}")
+            
+            # Use OpenAI to provide detailed candidate analysis
+            if self.openai_client and candidate_to_analyze:
+                try:
+                    candidate_summary = candidate_to_analyze.get('summary', {})
+                    if isinstance(candidate_summary, dict):
+                        candidate_details = json.dumps(candidate_summary, indent=2)
+                    else:
+                        candidate_details = str(candidate_summary)
+                    
+                    # Get additional candidate info
+                    candidate_filename = candidate_to_analyze.get('filename', 'Unknown')
+                    candidate_skills = candidate_to_analyze.get('skills', [])
+                    candidate_experience = candidate_to_analyze.get('experience', 0)
+                    candidate_role = candidate_to_analyze.get('role', 'Professional')
+                    match_reasons = candidate_to_analyze.get('match_reasons', [])
+                    
+                    prompt = f"""You are analyzing a candidate for a recruitment position. Provide a comprehensive professional summary.
+
+Candidate Data:
+{candidate_details}
+
+Role: {candidate_role}
+Skills: {candidate_skills}
+Experience: {candidate_experience} years
+Match Reasons: {match_reasons}
+CV File: {candidate_filename}
+
+User asked: "{last_user_message}"
+
+Provide a detailed professional analysis covering:
+
+**1. CANDIDATE OVERVIEW**
+- Full name and current role
+- Years of experience and seniority level
+- Industry background
+
+**2. CORE COMPETENCIES**  
+- Technical skills and expertise
+- Soft skills and leadership abilities
+- Certifications or qualifications
+
+**3. PROFESSIONAL BACKGROUND**
+- Career progression and achievements
+- Notable projects or accomplishments
+- Industry experience
+
+**4. STRENGTHS FOR THIS ROLE**
+- Why they're a good fit
+- Specific value they'd bring
+- Alignment with requirements
+
+**5. ASSESSMENT & RECOMMENDATION**
+- Overall suitability rating
+- Potential concerns or gaps
+- Hiring recommendation
+
+Make it conversational, detailed, and actionable. Be specific about their qualifications and experience."""
+
+                    response = self.openai_client.chat.completions.create(
+                        model="gpt-4",
+                        messages=[{"role": "user", "content": prompt}],
+                        max_tokens=400,
+                        temperature=0.3
+                    )
+                    
+                    ai_analysis = response.choices[0].message.content.strip()
+                    print(f"🤖 DEBUG: Generated candidate analysis")
+                    
+                    candidate_name = "Unknown"
+                    if isinstance(candidate_summary, dict):
+                        candidate_name = candidate_summary.get('candidate_name', 'Professional Candidate')
+                    
+                    return {
+                        'message': f"""📋 **Detailed Analysis: {candidate_name}**
+
+{ai_analysis}
+
+**Match Score:** {candidate_to_analyze.get('match_percentage', 0)}%
+**CV File:** {candidate_filename}""",
+                        'action': 'continue',
+                        'suggestions': [
+                            'Tell me about the next candidate',
+                            'Compare with other candidates',
+                            'What are their weaknesses?',
+                            'Show me their CV file'
+                        ]
+                    }
+                    
+                except Exception as e:
+                    print(f"❌ Error in AI candidate analysis: {e}")
+                    # Fall back to basic analysis
+            
+            # Fallback analysis without AI
+            candidate_name = "Professional Candidate"
+            if isinstance(candidate_to_analyze.get('summary'), dict):
+                candidate_name = candidate_to_analyze['summary'].get('candidate_name', 'Professional Candidate')
             
             return {
-                'message': f"""💡 **{candidate_name} is a {top_candidate['match_percentage']}% match because:**
+                'message': f"""📋 **Candidate Analysis: {candidate_name}**
 
-{chr(10).join([f'• {reason}' for reason in top_candidate.get('match_reasons', ['Strong professional background'])])}
+**Role:** {candidate_to_analyze.get('role', 'Professional')}
+**Experience:** {candidate_to_analyze.get('experience', 0)} years
+**Key Skills:** {', '.join(candidate_to_analyze.get('skills', [])[:5])}
 
-**What else would you like to know about this candidate?**""",
+**Why this candidate matches:**
+{chr(10).join([f'• {reason}' for reason in candidate_to_analyze.get('match_reasons', ['Strong professional background'])])}
+
+**Match Score:** {candidate_to_analyze.get('match_percentage', 0)}%
+**CV File:** {candidate_to_analyze.get('filename', 'Unknown')}
+
+**Would you like more details about this candidate?**""",
                 'action': 'continue',
                 'suggestions': [
-                    'Tell me more about their experience',
+                    'Tell me about their experience',
                     'What are their key strengths?',
                     'Show me the next candidate',
-                    'Compare with other matches'
+                    'Compare with other candidates'
                 ]
             }
         else:
             return {
-                'message': "I don't have any recent search results to discuss. Would you like me to search for candidates?",
+                'message': "I don't have any recent search results to analyze. Please search for candidates first, then I can provide detailed analysis of specific candidates.",
                 'action': 'continue',
                 'suggestions': [
-                    'Find senior developers',
-                    'Search for specific skills',
-                    'Show me all candidates'
+                    'Find project managers',
+                    'Search for developers',
+                    'Show me all candidates',
+                    'Find specific skills'
                 ]
             }
     
@@ -802,81 +1030,158 @@ Let me help you refine your search. What specific requirements are most importan
             ]
         }
     
-    def _handle_general_conversation_sync(self, message: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle general conversation synchronously."""
-        cv_count = len(context.get('cv_summaries', []))
+#     def _handle_general_conversation_sync(self, message: str, context: Dict[str, Any]) -> Dict[str, Any]:
+#         """Handle general conversation synchronously - ONLY for non-CV questions with OpenAI intelligence."""
+#         cv_count = len(context.get('cv_summaries', []))
+#
+#         # Use OpenAI ONLY for general questions (not CV-related ones)
+#         if self.openai_client:
+#             try:
+#                 print(f"🤖 DEBUG: Using OpenAI for general (non-CV) conversation: '{message}'")
+#
+#                 prompt = f"""You are an intelligent AI assistant. The user is asking a general question.
+#
+# User's message: "{message}"
+#
+# Instructions:
+#
+# -Answer any general question clearly and professionally – whether it's about technology, business, career, life advice, or recommendations.
+#
+# -Be engaging, helpful, and concise (max 150 words).
+#
+# -If the user asks about a CV in general, generate a brief and informative summary of that CV.
+#
+# -If the user asks about a specific person by name, find the matching CV by exact name, extract all available details, and generate a well-defined, concise summary of that person’s profile.
+#
+# -If the user requests suggestions, offer thoughtful, relevant suggestions based on context.
+#
+# -If needed, ask clarifying questions to ensure accurate and helpful responses.
+#
+# -Always respond as if you are a smart assistant who understands both context and intent.
+#
+# Response:"""
+#
+#                 response = self.openai_client.chat.completions.create(
+#                     model="gpt-4",
+#                     messages=[{"role": "user", "content": prompt}],
+#                     max_tokens=250,
+#                     temperature=0.7
+#                 )
+#
+#                 ai_response = response.choices[0].message.content.strip()
+#                 print(f"🤖 DEBUG: OpenAI general response: {ai_response}")
+#
+#                 return {
+#                     'message': ai_response,
+#                     'action': 'continue',
+#                     'suggestions': [
+#                         'Tell me more about this',
+#                         'Ask me another question',
+#                         'Get more recommendations',
+#                         'Help me find candidates' if cv_count > 0 else 'What else can you help with?'
+#                     ]
+#                 }
+#
+#             except Exception as e:
+#                 print(f"❌ OpenAI general conversation failed: {e}")
+#                 # Fall through to default response
+#
+#         # Default response if OpenAI fails
+#         return {
+#             'message': f"""I'm here to help you with anything! I can answer general questions and provide advice on various topics.
+#
+# **I can help you with:**
+# • Technology and programming advice
+# • Business and career recommendations
+# • General questions and explanations
+# • {f'CV/recruitment from my {cv_count} available profiles' if cv_count > 0 else 'Various topics'}
+#
+# **What would you like to know about?**""",
+#             'action': 'continue',
+#             'suggestions': [
+#                 'Ask for recommendations',
+#                 'Get technology advice',
+#                 'Business questions',
+#                 'Find candidates' if cv_count > 0 else 'General advice'
+#             ]
+#         }
 
-        # Try to use OpenAI for intelligent conversation
+    def _handle_general_conversation_sync(self, message: str, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle general conversation synchronously - responds intelligently to general or CV-related questions."""
+        cv_summaries = context.get('cv_summaries', [])
+        cv_count = len(cv_summaries)
+
+        # Format CVs for prompt
+        cv_summaries_text = "\n\n".join(
+            [f"Name: {cv.get('name')}\nSummary: {cv.get('summary')}" for cv in cv_summaries]
+        ) or "No CVs available."
+
         if self.openai_client:
             try:
-                print(f"🤖 DEBUG: Using OpenAI for general conversation: '{message}'")
+                print(f"🤖 DEBUG: Using OpenAI for conversation: '{message}'")
 
-                prompt = f"""You are an AI recruitment assistant. The user said: "{message}"
+                prompt = f"""You are an intelligent AI assistant. A user is chatting with you.
 
-Respond helpfully about recruitment and CV matching. Be conversational and engaging.
-If they ask about candidates, mention you have {cv_count} CVs ready.
-Keep response under 100 words and suggest what they can do next.
+    User's message: "{message}"
 
-Response:"""
+    Below is a list of available candidate CVs:
+
+    {cv_summaries_text}
+
+    Instructions:
+    - If the user asks about a specific person by name (e.g., "Marya Zamir Khan"), search for that **exact name** in the list above and return a detailed, professional summary of that person.
+    - If the name is not found, respond politely that no match was found and suggest checking the spelling.
+    - If the user asks about CVs in general, summarize one or more of them concisely.
+    - If the question is general (e.g., about technology, business, careers, advice), respond intelligently and clearly with helpful information.
+    - Keep responses under 150 words.
+    - Be helpful, conversational, and professional. Offer relevant suggestions when appropriate.
+
+    Response:"""
 
                 response = self.openai_client.chat.completions.create(
-                    model="gpt-3.5-turbo",
+                    model="gpt-4",
                     messages=[{"role": "user", "content": prompt}],
-                    max_tokens=200,
+                    max_tokens=250,
                     temperature=0.7
                 )
 
                 ai_response = response.choices[0].message.content.strip()
-                print(f"🤖 DEBUG: OpenAI general conversation response: {ai_response}")
+                print(f"🤖 DEBUG: OpenAI response: {ai_response}")
 
                 return {
                     'message': ai_response,
                     'action': 'continue',
                     'suggestions': [
-                        'Find candidates for a role',
-                        'Search by skills',
-                        'Show me all candidates',
-                        'Help with recruitment'
+                        'Tell me more about this',
+                        'Ask me another question',
+                        'Get more recommendations',
+                        'Help me find candidates' if cv_count > 0 else 'What else can you help with?'
                     ]
                 }
 
             except Exception as e:
                 print(f"❌ OpenAI general conversation failed: {e}")
-                # Fall through to default response
 
-        # Default response if OpenAI fails or not available
-        if cv_count > 0:
-            return {
-                'message': f"""I'm here to help you find the perfect candidates from your {cv_count} available CVs.
+        # Fallback default response
+        return {
+            'message': f"""I'm here to help you with anything! I can answer general questions and provide advice on various topics.
 
-**I can help you:**
-• Search for specific roles and skills
-• Explain why candidates are good matches
-• Answer questions about candidate profiles
-• Refine searches based on your needs
+    **I can help you with:**
+    • Technology and programming advice
+    • Business and career recommendations
+    • General topics and ideas
+    • {f'CV/recruitment from my {cv_count} available profiles' if cv_count > 0 else 'Much more'}
 
-**What kind of candidate are you looking for?**""",
-                'action': 'continue',
-                'suggestions': [
-                    'Find senior developers',
-                    'Search for marketing roles',
-                    'Show me data scientists',
-                    'Browse all candidates'
-                ]
-            }
-        else:
-            return {
-                'message': """I'm processing your CVs to create intelligent candidate profiles. This may take a moment...
+    **What would you like to explore?**""",
+            'action': 'continue',
+            'suggestions': [
+                'Ask for recommendations',
+                'Get technology advice',
+                'Business questions',
+                'Find candidates' if cv_count > 0 else 'General advice'
+            ]
+        }
 
-**What kind of role are you hiring for?**""",
-                'action': 'continue',
-                'suggestions': [
-                    'Senior software developer',
-                    'Marketing professional',
-                    'Data scientist',
-                    'Project manager'
-                ]
-            }
 
     async def process_chat_message(self, user_id: int, message: str, db: Session) -> Dict[str, Any]:
         """Enhanced chat processing with natural conversation flow and intelligent CV matching."""
@@ -944,24 +1249,31 @@ Response:"""
             
             # Handle different conversation flows
             if intent_analysis['intent'] == 'greeting':
+                print("here in 1")
                 return await self._handle_greeting(context)
             
             elif intent_analysis['intent'] == 'job_description':
+                print("here in 2")
                 return await self._handle_job_description(intent_analysis, context, db, user_id)
             
             elif intent_analysis['intent'] == 'clarification_response':
+                print("here in 3")
                 return await self._handle_clarification_response(intent_analysis, context, db, user_id)
             
             elif intent_analysis['intent'] == 'search_request':
+                print("here in 4")
                 return await self._handle_search_request(intent_analysis, context, db, user_id)
             
             elif intent_analysis['intent'] == 'candidate_inquiry':
+                print("here in 5")
                 return await self._handle_candidate_inquiry(intent_analysis, context, db, user_id)
             
             elif intent_analysis['intent'] == 'refinement':
+                print("here in 6")
                 return await self._handle_search_refinement(intent_analysis, context, db, user_id)
             
             else:
+                print("here is else.")
                 return await self._handle_general_conversation(intent_analysis, context, message)
             
         except Exception as e:
