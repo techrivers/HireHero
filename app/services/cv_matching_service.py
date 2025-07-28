@@ -13,6 +13,7 @@ import re
 class CVMatchingService:
     def __init__(self):
         self.openai_client = None
+        self.current_api_key = None  # Track current API key to detect changes
     
     def get_openai_key(self, db: Session, user_id: int) -> str:
         """Get user's OpenAI API key."""
@@ -24,8 +25,13 @@ class CVMatchingService:
     
     def initialize_openai_client(self, api_key: str):
         """Initialize OpenAI client with user's API key."""
+        # Check if we need to reinitialize (different API key)
+        if self.openai_client and self.current_api_key == api_key:
+            print(f"🔄 OpenAI client already initialized with same key")
+            return
+            
         try:
-            print(f"Attempting to initialize OpenAI client...")
+            print(f"🔄 Initializing OpenAI client with new API key: {api_key[:10]}...")
             print(f"OpenAI version: {openai.__version__}")
             
             # Check if api_key is properly formatted
@@ -51,6 +57,7 @@ class CVMatchingService:
                 http_client=http_client,
                 timeout=30.0  # 30 second timeout
             )
+            self.current_api_key = api_key  # Store current key
             print("✅ OpenAI client initialized successfully with custom http client")
             
         except Exception as e:

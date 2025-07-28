@@ -17,6 +17,7 @@ class EnhancedChatAgentService:
     
     def __init__(self):
         self.openai_client = None
+        self.current_api_key = None  # Track current API key to detect changes
         self.conversation_contexts = {}  # Store detailed conversation context per user
         self.cv_cache = {}  # Cache processed CV data
         self.cache_lock = threading.Lock()
@@ -32,7 +33,13 @@ class EnhancedChatAgentService:
     
     def initialize_openai_client(self, api_key: str) -> bool:
         """Initialize OpenAI client with proper configuration."""
+        # Check if we need to reinitialize (different API key)
+        if self.openai_client and self.current_api_key == api_key:
+            print(f"🔄 OpenAI client already initialized with same key")
+            return True
+            
         try:
+            print(f"🔄 Initializing OpenAI client with new API key: {api_key[:10]}...")
             import httpx
             http_client = httpx.Client(
                 timeout=30.0,
@@ -48,6 +55,8 @@ class EnhancedChatAgentService:
                 api_key=api_key,
                 http_client=http_client
             )
+            self.current_api_key = api_key  # Store current key
+            print(f"✅ OpenAI client initialized successfully")
             return True
         except Exception as e:
             print(f"❌ Failed to initialize OpenAI client: {e}")
@@ -84,7 +93,7 @@ class EnhancedChatAgentService:
 #
 #         try:
 #             response = self.openai_client.chat.completions.create(
-#                 model="gpt-4",
+#                 model="gpt-3.5-turbo",
 #                 messages=[{"role": "user", "content": prompt}],
 #                 temperature=0.5,
 #                 max_tokens=300
@@ -122,14 +131,16 @@ class EnhancedChatAgentService:
         try:
             print(f"🤖 Processing chat message synchronously for user {user_id}: {message[:100]}...")
             
-            # Step 1: Initialize OpenAI client (same as CV matching)
+            # Step 1: Initialize OpenAI client (always check for key changes)
             api_key = self.get_openai_key(db, user_id)
             if not api_key:
                 return self._create_configuration_response()
             
-            if not self.openai_client:
-                if not self.initialize_openai_client(api_key):
-                    return self._create_error_response("Failed to initialize AI service")
+            print(f"🔑 Using API key for user {user_id}: {api_key[:15]}...{api_key[-10:]}")
+            
+            # Always attempt to initialize/reinitialize with current API key
+            if not self.initialize_openai_client(api_key):
+                return self._create_error_response("Failed to initialize AI service")
             
             # Step 2: Get conversation context
             context = self.get_conversation_context(user_id)
@@ -750,7 +761,7 @@ Let me help you refine your search. What specific requirements are most importan
     }}"""
 
             response = self.openai_client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.3,
                 max_tokens=500
@@ -794,7 +805,7 @@ Let me help you refine your search. What specific requirements are most importan
     """
                 try:
                     response = self.openai_client.chat.completions.create(
-                        model="gpt-4",
+                        model="gpt-3.5-turbo",
                         messages=[{"role": "user", "content": candidate_prompt}],
                         max_tokens=10,
                         temperature=0.1
@@ -991,7 +1002,7 @@ Provide a detailed professional analysis covering:
 Make it conversational, detailed, and actionable. Be specific about their qualifications and experience."""
 
                     response = self.openai_client.chat.completions.create(
-                        model="gpt-4",
+                        model="gpt-3.5-turbo",
                         messages=[{"role": "user", "content": prompt}],
                         max_tokens=400,
                         temperature=0.3
@@ -1108,7 +1119,7 @@ Make it conversational, detailed, and actionable. Be specific about their qualif
 # Response:"""
 #
 #                 response = self.openai_client.chat.completions.create(
-#                     model="gpt-4",
+#                     model="gpt-3.5-turbo",
 #                     messages=[{"role": "user", "content": prompt}],
 #                     max_tokens=250,
 #                     temperature=0.7
@@ -1208,7 +1219,7 @@ Make it conversational, detailed, and actionable. Be specific about their qualif
     Response:"""
 
                 response = self.openai_client.chat.completions.create(
-                    model="gpt-4",
+                    model="gpt-3.5-turbo",
                     messages=[{"role": "user", "content": prompt}],
                     max_tokens=250,
                     temperature=0.7
@@ -1397,7 +1408,7 @@ Make it conversational, detailed, and actionable. Be specific about their qualif
             ]
             
             response = self.openai_client.chat.completions.create(
-                model="gpt-4",  # Using GPT-4 for better analysis
+                model="gpt-3.5-turbo",  # Using GPT-4 for better analysis
                 messages=messages,
                 temperature=0.2,
                 max_tokens=800
@@ -1629,7 +1640,7 @@ Return only a decimal number between 0.0 and 1.0"""
             ]
             
             response = self.openai_client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-3.5-turbo",
                 messages=messages,
                 temperature=0.1,
                 max_tokens=50
@@ -1688,7 +1699,7 @@ Focus on specific, actionable insights that help hiring decisions."""
             ]
             
             response = self.openai_client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-3.5-turbo",
                 messages=messages,
                 temperature=0.3,
                 max_tokens=600

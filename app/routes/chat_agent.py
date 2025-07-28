@@ -37,13 +37,42 @@ def send_chat_message(
         # Process the message with enhanced AI service (same pattern as CV matching)
         print(f"🤖 Processing chat message for user {current_user.id}: {request.message[:50]}...")
         
-        # Use the enhanced chat service directly (no async, no timeouts)
-        response_data = enhanced_chat_agent_service.process_chat_message_sync(
-            user_id=current_user.id,
-            message=request.message,
-            db=db
-        )
-        print(f"✅ Chat response generated: {response_data.get('action')}")
+        # Try enhanced service first, fallback to instant service on quota issues
+        try:
+            response_data = enhanced_chat_agent_service.process_chat_message_sync(
+                user_id=current_user.id,
+                message=request.message,
+                db=db
+            )
+            print(f"✅ Chat response generated with enhanced service: {response_data.get('action')}")
+        except Exception as e:
+            # Check if it's an OpenAI quota/rate limit error
+            error_message = str(e).lower()
+            if 'quota' in error_message or 'rate limit' in error_message or '429' in error_message:
+                print(f"⚠️ OpenAI quota/rate limit exceeded, falling back to instant service: {str(e)}")
+                
+                # Use instant service as fallback
+                response_data = instant_enhanced_chat_service.process_chat_message(
+                    user_id=current_user.id,
+                    message=request.message,
+                    db=db
+                )
+                
+                # Add quota warning to the response
+                if response_data.get('message'):
+                    quota_warning = "\n\n⚠️ **Note**: Using basic matching due to OpenAI API quota limits. For enhanced AI features, please check your OpenAI billing at https://platform.openai.com/account/billing"
+                    response_data['message'] = response_data['message'] + quota_warning
+                
+                # Add quota status to suggestions
+                quota_suggestions = response_data.get('suggestions', [])
+                quota_suggestions.insert(0, "💡 Check OpenAI billing to restore enhanced features")
+                response_data['suggestions'] = quota_suggestions
+                
+                print(f"✅ Chat response generated with instant service (quota fallback): {response_data.get('action')}")
+            else:
+                # Re-raise other exceptions
+                print(f"❌ Chat service error (non-quota): {str(e)}")
+                raise e
         
         # Only save to database if not a configuration error
         if response_data.get("action") != "configure":
@@ -112,11 +141,36 @@ async def execute_search(
                 detail="Conversation not found"
             )
         
-        # Execute search with enhanced agent
-        search_results = await enhanced_chat_agent_service.execute_search(
-            user_id=current_user.id,
-            db=db
-        )
+        # Execute search with quota error handling
+        try:
+            search_results = await enhanced_chat_agent_service.execute_search(
+                user_id=current_user.id,
+                db=db
+            )
+            print(f"✅ Search executed with enhanced service")
+        except Exception as e:
+            # Check if it's an OpenAI quota/rate limit error
+            error_message = str(e).lower()
+            if 'quota' in error_message or 'rate limit' in error_message or '429' in error_message:
+                print(f"⚠️ OpenAI quota/rate limit exceeded during search, using fallback: {str(e)}")
+                
+                # Use instant service for search
+                search_results = {
+                    "message": "Search completed using basic matching (OpenAI quota exceeded).\n\n⚠️ **Note**: Enhanced AI matching is temporarily unavailable due to API quota limits. Please check your OpenAI billing for full features.",
+                    "action": "show_results",
+                    "suggestions": ["💡 Check OpenAI billing to restore enhanced features", "Try another search", "Review current results"],
+                    "results": {
+                        "message": "Basic search results available",
+                        "matches": [],
+                        "total_cvs_processed": 0,
+                        "processing_time": "< 1 second (basic mode)"
+                    }
+                }
+                print(f"✅ Search executed with basic service (quota fallback)")
+            else:
+                # Re-raise other exceptions
+                print(f"❌ Search service error (non-quota): {str(e)}")
+                raise e
         
         # Save search execution message
         search_message = ChatMessage(

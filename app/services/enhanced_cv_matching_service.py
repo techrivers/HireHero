@@ -43,7 +43,7 @@ class EnhancedCVMatchingService:
             
             # Test the client with a simple call
             test_response = self.openai_client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": "Reply with just 'OK' to confirm connection."}],
                 max_tokens=5,
                 temperature=0
@@ -85,7 +85,7 @@ Focus on what is explicitly REQUIRED vs just mentioned. Be precise.
 
             # Always use the new OpenAI client format
             response = self.openai_client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=800,
                 temperature=0.1
@@ -179,7 +179,7 @@ Be thorough in extracting ALL technical skills mentioned anywhere in the CV.
 
             # Always use the new OpenAI client format
             response = self.openai_client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=1000,
                 temperature=0.1
@@ -275,7 +275,7 @@ Write in a professional, executive summary style. Each summary should be 2-4 sen
 
             # Always use the new OpenAI client format
             response = self.openai_client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=1200,
                 temperature=0.1
