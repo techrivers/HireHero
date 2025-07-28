@@ -723,6 +723,49 @@ Let me help you refine your search. What specific requirements are most importan
 # PATCHED: _perform_cv_matching_sync with GPT-powered semantic scoring
 # Add this method to your EnhancedChatAgentService class
 
+    def _generate_match_analysis_sync(self, job_requirements: Dict[str, Any], cv: Dict[str, Any], match_score: float) -> Dict[str, Any]:
+        try:
+            cv_summary = cv.get('summary', {})
+            cv_skills = cv.get('skills', [])
+            cv_role = cv.get('role', '')
+
+            prompt = f"""Generate a match analysis in JSON format.
+
+    Job Requirements:
+    {json.dumps(job_requirements, indent=2)}
+
+    Candidate:
+    - Role: {cv_role}
+    - Skills: {cv_skills}
+    - Experience: {cv.get('experience', 0)} years
+    - Summary: {cv_summary if isinstance(cv_summary, str) else json.dumps(cv_summary, indent=2)}
+
+    Match Score: {match_score}
+
+    Return:
+    {{
+      "reasons": ["reason 1", "reason 2", "reason 3"],
+      "experience_fit": "Perfect fit|Good fit|Adequate fit",
+      "overall_assessment": "Concise summary"
+    }}"""
+
+            response = self.openai_client.chat.completions.create(
+                model="gpt-4",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+                max_tokens=500
+            )
+
+            return json.loads(response.choices[0].message.content.strip())
+
+        except Exception as e:
+            print(f"❌ Error generating match analysis: {e}")
+            return {
+                "reasons": ["Experience aligns", "Skill match"],
+                "experience_fit": "Good fit",
+                "overall_assessment": "Strong match based on skillset and experience"
+            }
+
     def _perform_cv_matching_sync(self, criteria: Dict[str, Any], cv_summaries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Perform CV matching with enhanced GPT semantic scoring."""
         try:
@@ -764,10 +807,13 @@ Let me help you refine your search. What specific requirements are most importan
                     score = 0.0
 
                 if score >= self.MATCH_THRESHOLD:
+                    # ✅ Dynamically generate match_analysis
+                    match_analysis = self._generate_match_analysis_sync(criteria, cv, score)
                     match = cv.copy()
                     match['match_score'] = score
                     match['match_percentage'] = round(score * 100)
-                    match['match_reasons'] = ["Semantic match using GPT"]
+                    match['match_reasons'] = match_analysis.get("reasons", ["Strong professional background"])
+                    match['match_analysis'] = match_analysis
                     matches.append(match)
 
             matches.sort(key=lambda x: x['match_score'], reverse=True)
@@ -1113,7 +1159,16 @@ Make it conversational, detailed, and actionable. Be specific about their qualif
 
         # Format CVs for prompt
         cv_summaries_text = "\n\n".join(
-            [f"Name: {cv.get('name')}\nSummary: {cv.get('summary')}" for cv in cv_summaries]
+            [
+                f"Name: {cv.get('name')}\n"
+                f"Role: {cv.get('title', 'N/A')}\n"
+                f"Email: {cv.get('email', 'Not provided')}\n"
+                f"Phone: {cv.get('phone', 'Not provided')}\n"
+                f"Summary: {cv.get('summary', 'No summary available')}\n"
+                f"Skills: {', '.join(cv.get('skills', [])) if isinstance(cv.get('skills'), list) else cv.get('skills', 'N/A')}\n"
+                f"Experience: {cv.get('experience', 'N/A')}"
+                for cv in cv_summaries
+            ]
         ) or "No CVs available."
 
         if self.openai_client:
@@ -1134,6 +1189,20 @@ Make it conversational, detailed, and actionable. Be specific about their qualif
     - If the user asks about CVs in general, summarize one or more of them concisely.
     - If the question is general (e.g., about technology, business, careers, advice), respond intelligently and clearly with helpful information.
     - Keep responses under 150 words.
+    - If the user asks for contact details (like email or phone), include them in the response if available.
+    - Return the **top 2–3 relevant candidates** in a clean, formatted response.
+    - For each matching candidate, use the following format:
+
+    Candidate: <Full Name>
+    Role: <Job Title>
+    Email: <Email>
+    Phone: <Phone>
+    Summary: <Concise 2–3 sentence summary>
+    Skills: <Key skills>
+    Experience: <Years of experience>
+
+    - If the user asks about a person by exact name, return that person's full CV details in the format above.
+    - If no matching candidate is found, reply politely asking the user to check the spelling or try a different query.
     - Be helpful, conversational, and professional. Offer relevant suggestions when appropriate.
 
     Response:"""
