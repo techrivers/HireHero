@@ -13,7 +13,7 @@ from datetime import datetime
 import threading
 
 class EnhancedChatAgentService:
-    """Enhanced AI-powered chat agent with natural conversation capabilities and intelligent CV matching."""
+    """Enhanced AI-powered chat agent with natural conversation capabilities and intelligent Resume matching."""
     
     def __init__(self):
         self.openai_client = None
@@ -127,7 +127,7 @@ class EnhancedChatAgentService:
         }
 
     def process_chat_message_sync(self, user_id: int, message: str, db: Session) -> Dict[str, Any]:
-        """Process chat message synchronously (same pattern as CV matching service)."""
+        """Process chat message synchronously (same pattern as Resume matching service)."""
         try:
             print(f"🤖 Processing chat message synchronously for user {user_id}: {message[:100]}...")
             
@@ -183,7 +183,7 @@ class EnhancedChatAgentService:
             return self._create_error_response("I encountered an unexpected error. Please try again.")
     
     def get_cv_summaries_sync(self, user_id: int, db: Session) -> List[Dict[str, Any]]:
-        """Get CV summaries synchronously (same pattern as CV matching service)."""
+        """Get CV summaries synchronously (same pattern as Resume matching service)."""
         with self.cache_lock:
             if user_id in self.cv_cache:
                 print(f"📋 Using cached CV summaries for user {user_id}: {len(self.cv_cache[user_id])} CVs")
@@ -260,7 +260,7 @@ class EnhancedChatAgentService:
             return []
     
     def _generate_cv_summary_sync(self, cv_content: str, filename: str) -> Dict[str, Any]:
-        """Generate CV summary synchronously using OpenAI (same pattern as CV matching)."""
+        """Generate CV summary synchronously using OpenAI (same pattern as Resume matching)."""
         if not self.openai_client:
             return self._fallback_cv_summary(cv_content, filename)
         
@@ -302,7 +302,7 @@ Return JSON:
             return self._fallback_cv_summary(cv_content, filename)
     
     def _fallback_cv_summary(self, cv_content: str, filename: str) -> Dict[str, Any]:
-        """Fallback CV summary without AI (same pattern as CV matching)."""
+        """Fallback Resume summary without AI (same pattern as Resume matching)."""
         from app.utils.simple_document_parser import simple_document_parser as document_parser
         
         return {
@@ -404,7 +404,7 @@ Return JSON:
             ]
     
     def _analyze_conversation_intent_sync(self, message: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Analyze conversation intent synchronously (with fallback like CV matching)."""
+        """Analyze conversation intent synchronously (with fallback like Resume matching)."""
         print(f"🤖 DEBUG: OpenAI client available: {self.openai_client is not None}")
         
         if not self.openai_client:
@@ -546,7 +546,7 @@ I'm processing your CVs to create intelligent candidate profiles. This may take 
         }
     
     def _handle_search_request_sync(self, intent_analysis: Dict[str, Any], context: Dict[str, Any], db: Session, user_id: int) -> Dict[str, Any]:
-        """Handle search requests synchronously (similar to CV matching approach)."""
+        """Handle search requests synchronously (similar to Resume matching approach)."""
         try:
             extracted_info = intent_analysis.get('extracted_info', {})
             cv_summaries = context.get('cv_summaries', [])
@@ -778,7 +778,7 @@ Let me help you refine your search. What specific requirements are most importan
             }
 
     def _perform_cv_matching_sync(self, criteria: Dict[str, Any], cv_summaries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Perform CV matching with enhanced GPT semantic scoring."""
+        """Perform Resume matching with enhanced GPT semantic scoring."""
         try:
             print(f"🔍 Matching with criteria: {criteria}")
             matches = []
@@ -1264,7 +1264,7 @@ Make it conversational, detailed, and actionable. Be specific about their qualif
 
 
     async def process_chat_message(self, user_id: int, message: str, db: Session) -> Dict[str, Any]:
-        """Enhanced chat processing with natural conversation flow and intelligent CV matching."""
+        """Enhanced chat processing with natural conversation flow and intelligent Resume matching."""
         try:
             print(f"🤖 Processing enhanced chat message for user {user_id}: {message[:100]}...")
             

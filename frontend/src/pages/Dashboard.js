@@ -65,7 +65,7 @@ const Dashboard = () => {
 
   const fetchRecentMatches = async () => {
     try {
-      const response = await axios.get('/cv-matching/history?limit=5');
+      const response = await axios.get('/resume-matching/history?limit=5');
       setRecentMatches(response.data);
     } catch (error) {
       console.error('Error fetching recent matches:', error);
@@ -167,7 +167,7 @@ const Dashboard = () => {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <StatusIcon status={status.cvFolder} />
-              <span>CV Folder Configuration</span>
+              <span>Resume Folder Configuration</span>
             </div>
             {!status.cvFolder && (
               <Link to="/configuration" className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }}>
@@ -190,7 +190,7 @@ const Dashboard = () => {
           gap: '16px' 
         }}>
           <Link 
-            to="/cv-matching" 
+            to="/resume-matching"
             className="btn btn-primary"
             style={{ 
               padding: '20px', 
@@ -202,7 +202,7 @@ const Dashboard = () => {
             }}
           >
             <FileSearch size={24} />
-            <span>Match CVs</span>
+            <span>Match Resume</span>
             <span style={{ fontSize: '12px', opacity: 0.8 }}>
               Find the best candidates for your job
             </span>

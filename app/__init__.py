@@ -1,11 +1,11 @@
 """
 Resume Matcher Agent
 
-A smart, multi-user AI bot for matching CVs to job descriptions using OpenAI and Google Drive integration.
+A smart, multi-user AI bot for matching Resume to job descriptions using OpenAI and Google Drive integration.
 
 Features:
 - Multi-user authentication with secure JWT tokens
-- Google Drive integration for CV storage and access
+- Google Drive integration for Resume storage and access
 - OpenAI-powered Resume matching using embeddings and LLM analysis
 - Encrypted data storage for API keys and tokens
 - PostgreSQL database for persistent data

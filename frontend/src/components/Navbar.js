@@ -18,7 +18,7 @@ const Navbar = () => {
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/chat-agent', label: 'AI Chat', icon: MessageCircle },
-    { path: '/cv-matching', label: 'CV Matching', icon: FileSearch },
+    { path: '/resume-matching', label: 'Resume Matching', icon: FileSearch },
     { path: '/configuration', label: 'Configuration', icon: Settings },
     { path: '/google-drive-setup', label: 'Google Drive', icon: HardDrive },
     { path: '/history', label: 'History', icon: History },

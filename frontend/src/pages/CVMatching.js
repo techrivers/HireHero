@@ -282,14 +282,14 @@ const CVMatching = () => {
     }).filter(Boolean);
   };
   
-  // Enhanced progress messages for CV matching process
+  // Enhanced progress messages for Resume matching process
   const progressMessages = [
     "🔗 Establishing secure connection to Google Drive...",
-    "📂 Locating and accessing your CV folder...", 
-    "📄 Downloading CV documents for analysis...",
-    "🔍 Extracting text content from CV files...",
+    "📂 Locating and accessing your Resume folder...", 
+    "📄 Downloading Resume documents for analysis...",
+    "🔍 Extracting text content from Resume files...",
     "🧠 Running AI-powered job requirement analysis...",
-    "🎯 Analyzing each CV against job criteria...",
+    "🎯 Analyzing each Resume against job criteria...",
     "⚡ Computing compatibility scores and rankings...",
     "📊 Generating detailed match insights...",
     "✨ Preparing comprehensive results...",
@@ -338,11 +338,11 @@ const CVMatching = () => {
   const jobDescription = watch('job_description');
 
   const onSubmit = async (data) => {
-    console.log('🚀 FORM SUBMITTED - STARTING CV MATCHING');
+    console.log('🚀 FORM SUBMITTED - STARTING RESUME MATCHING');
     setIsMatching(true);
     setResults(null);
     setProgressStep(0);
-    setProgressMessage('🚀 INITIALIZING CV MATCHING PROCESS...'); // Set initial message
+    setProgressMessage('🚀 INITIALIZING RESUME MATCHING PROCESS...'); // Set initial message
     
     console.log('⏰ State updated: isMatching=true, starting animation...');
     
@@ -354,7 +354,7 @@ const CVMatching = () => {
     setCancelTokenSource(source);
     
     try {
-      const response = await axios.post('/cv-matching/match', data, {
+      const response = await axios.post('/resume-matching/match', data, {
         cancelToken: source.token,
         timeout: 300000, // 5 minute timeout
       });
@@ -368,14 +368,14 @@ const CVMatching = () => {
       // Handle different response scenarios
       const resultsCount = response.data.results?.length || 0;
       if (resultsCount > 0) {
-        toast.success(`Found ${resultsCount} matching CVs!`);
+        toast.success(`Found ${resultsCount} matching Resumes!`);
       } else {
         // Show specific message based on status
-        const message = response.data.message || 'No matching CVs found';
+        const message = response.data.message || 'No matching Resumes found';
         if (response.data.status === 'google_drive_not_configured') {
-          toast.warning('Please configure Google Drive first to access your CV files');
+          toast.warning('Please configure Google Drive first to access your Resume files');
         } else if (response.data.status === 'no_files_found') {
-          toast.info(`No files found in '${response.data.folder_name || 'cvs'}' folder. Please upload CV files to your Google Drive.`);
+          toast.info(`No files found in '${response.data.folder_name || 'resumes'}' folder. Please upload Resume files to your Google Drive.`);
         } else {
           toast.info(message);
         }
@@ -385,11 +385,11 @@ const CVMatching = () => {
       clearInterval(progressInterval);
       
       if (axios.isCancel(error)) {
-        toast.info('CV matching was cancelled');
+        toast.info('Resume matching was cancelled');
       } else {
         const message = error.response?.data?.detail || 'Matching failed';
         if (error.code === 'ECONNABORTED') {
-          toast.error('Request timeout: CV matching took too long. Try with a simpler job description.');
+          toast.error('Request timeout: Resume matching took too long. Try with a simpler job description.');
         } else {
           toast.error(message);
         }
@@ -409,7 +409,7 @@ const CVMatching = () => {
   const cancelMatching = () => {
     if (cancelTokenSource) {
       cancelTokenSource.cancel('Operation cancelled by user');
-      toast.info('Cancelling CV matching...');
+      toast.info('Cancelling Resume matching...');
       setProgressMessage('');
       setProgressStep(0);
     }
@@ -431,14 +431,14 @@ const CVMatching = () => {
     if (!matchId) return;
     
     try {
-      const response = await axios.get(`/cv-matching/export/${matchId}`, {
+      const response = await axios.get(`/resume-matching/export/${matchId}`, {
         responseType: 'blob'
       });
       
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `cv-match-results-${matchId}.json`);
+      link.setAttribute('download', `resume-match-results-${matchId}.json`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -450,7 +450,7 @@ const CVMatching = () => {
   };
 
   const downloadCV = async (googleDriveFileId, candidateName) => {
-    console.log('🔄 Download CV called with:', { googleDriveFileId, candidateName });
+    console.log('🔄 Download Resume called with:', { googleDriveFileId, candidateName });
     
     if (!googleDriveFileId) {
       console.error('❌ No file ID provided');
@@ -462,7 +462,7 @@ const CVMatching = () => {
       console.log('📥 Starting download request...');
       toast.info('Downloading CV...');
       
-      const url = `/cv-matching/download-cv/${googleDriveFileId}`;
+      const url = `/resume-matching/download-resume/${googleDriveFileId}`;
       console.log('🌐 Download URL:', url);
       
       const response = await axios.get(url, {
@@ -482,7 +482,7 @@ const CVMatching = () => {
       
       // Get filename from response headers or use default
       const contentDisposition = response.headers['content-disposition'];
-      let filename = `${candidateName || 'candidate'}_CV.pdf`;
+      let filename = `${candidateName || 'candidate'}_Resume.pdf`;
       
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
@@ -499,15 +499,15 @@ const CVMatching = () => {
       // Clean up the URL object
       window.URL.revokeObjectURL(blobUrl);
       
-      toast.success('CV downloaded successfully!');
+      toast.success('Resume downloaded successfully!');
     } catch (error) {
       console.error('Download error:', error);
       if (error.response?.status === 404) {
-        toast.error('CV file not found or no longer available');
+        toast.error('Resume file not found or no longer available');
       } else if (error.response?.status === 400) {
         toast.error('Google Drive not properly configured');
       } else {
-        toast.error('Failed to download CV. Please try again.');
+        toast.error('Failed to download Resume. Please try again.');
       }
     }
   };
@@ -516,13 +516,13 @@ const CVMatching = () => {
     console.log('🔍 downloadAllCVs called with:', cvResults);
     
     if (!cvResults || cvResults.length === 0) {
-      toast.error('No CVs to download');
+      toast.error('No Resumes to download');
       return;
     }
 
-    // Debug: Log each CV result to see what fields are available
+    // Debug: Log each Resume result to see what fields are available
     cvResults.forEach((cv, index) => {
-      console.log(`CV ${index + 1}:`, {
+      console.log(`Resume ${index + 1}:`, {
         filename: cv.cv_filename,
         candidate: cv.candidate_name,
         google_drive_file_id: cv.google_drive_file_id,
@@ -532,19 +532,19 @@ const CVMatching = () => {
     });
 
     const validCVs = cvResults.filter(cv => cv.google_drive_file_id);
-    console.log(`📊 Found ${validCVs.length} valid CVs out of ${cvResults.length} total CVs`);
+    console.log(`📊 Found ${validCVs.length} valid Resumes out of ${cvResults.length} total Resumes`);
     
     if (validCVs.length === 0) {
-      toast.error('No valid CVs found for download - missing Google Drive file IDs');
+      toast.error('No valid Resumes found for download - missing Google Drive file IDs');
       return;
     }
 
-    toast.info(`Starting download of ${validCVs.length} CVs...`);
+    toast.info(`Starting download of ${validCVs.length} Resumes...`);
     
     let successCount = 0;
     let failCount = 0;
 
-    // Download CVs with a small delay between each to avoid overwhelming the server
+    // Download Resumes with a small delay between each to avoid overwhelming the server
     for (let i = 0; i < validCVs.length; i++) {
       const cv = validCVs[i];
       try {
@@ -556,18 +556,18 @@ const CVMatching = () => {
           await new Promise(resolve => setTimeout(resolve, 500));
         }
       } catch (error) {
-        console.error(`Failed to download CV for ${cv.candidate_name}:`, error);
+        console.error(`Failed to download Resume for ${cv.candidate_name}:`, error);
         failCount++;
       }
     }
 
     // Show summary
     if (successCount === validCVs.length) {
-      toast.success(`All ${successCount} CVs downloaded successfully!`);
+      toast.success(`All ${successCount} Resumes downloaded successfully!`);
     } else if (successCount > 0) {
-      toast.warning(`${successCount} CVs downloaded, ${failCount} failed`);
+      toast.warning(`${successCount} Resumes downloaded, ${failCount} failed`);
     } else {
-      toast.error('Failed to download any CVs');
+      toast.error('Failed to download any Resumes');
     }
   };
 
@@ -579,7 +579,7 @@ const CVMatching = () => {
           <span style={{ fontSize: '12px', color: '#a0a0a0', marginLeft: '10px' }}>v2.0</span>
         </h1>
         <p style={{ color: '#718096' }}>
-          Find the best candidates by matching CVs to your job description
+          Find the best candidates by matching Resumes to your job description
         </p>
       </div>
 
@@ -595,7 +595,7 @@ const CVMatching = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="form-group">
             <label className="form-label" htmlFor="job_description">
-              Enter the job description you want to match CVs against
+              Enter the job description you want to match Resumes against
             </label>
             <textarea
               id="job_description"
@@ -630,12 +630,12 @@ const CVMatching = () => {
               {isMatching ? (
                 <>
                   <div className="spinner" style={{ width: '16px', height: '16px' }} />
-                  Matching CVs...
+                  Matching Resumes...
                 </>
               ) : (
                 <>
                   <Play size={16} />
-                  Match CVs
+                  Match Resumes
                 </>
               )}
             </button>
@@ -699,7 +699,7 @@ const CVMatching = () => {
                   color: '#ffffff',
                   letterSpacing: '0.5px'
                 }}>
-                  🤖 AI-Powered CV Analysis in Progress
+                  🤖 AI-Powered Resume Analysis in Progress
                 </span>
               </div>
               
@@ -715,7 +715,7 @@ const CVMatching = () => {
                   zIndex: 1
                 }}
               >
-                {progressMessage || '🔄 Initializing intelligent CV analysis...'}
+                {progressMessage || '🔄 Initializing intelligent Resume analysis...'}
               </div>
               
               <div style={{
@@ -886,7 +886,7 @@ const CVMatching = () => {
                 }}
               >
                 <Download size={14} />
-                Download All CVs
+                Download All Resumes
               </button>
               <button
                 onClick={exportResults}
@@ -906,13 +906,13 @@ const CVMatching = () => {
               color: '#718096' 
             }}>
               <FileSearch size={48} style={{ opacity: 0.3, marginBottom: '16px' }} />
-              <p>{results.message || 'No matching CVs found for this job description.'}</p>
+              <p>{results.message || 'No matching Resumes found for this job description.'}</p>
               <p style={{ fontSize: '14px', marginTop: '8px' }}>
                 {results.status === 'google_drive_not_configured' 
                   ? 'Please set up Google Drive integration first.'
                   : results.status === 'no_files_found'
-                  ? `Upload CV files to your '${results.folder_name || 'cvs'}' folder in Google Drive.`
-                  : 'Try adjusting your job description or check your CV folder configuration.'
+                  ? `Upload Resume files to your '${results.folder_name || 'resumes'}' folder in Google Drive.`
+                  : 'Try adjusting your job description or check your Resume folder configuration.'
                 }
               </p>
             </div>
@@ -1016,7 +1016,7 @@ const CVMatching = () => {
                             onMouseOut={(e) => e.target.style.background = '#3182ce'}
                           >
                             <Download size={12} />
-                            Download CV
+                            Download Resume
                           </button>
                         </div>
                       ) : (

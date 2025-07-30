@@ -429,7 +429,7 @@ Write in a professional, executive summary style. Each summary should be 2-4 sen
         return " | ".join(summaries)
 
     def process_enhanced_cv_matching(self, db: Session, user_id: int, job_description: str) -> Dict[str, Any]:
-        """Enhanced CV matching with intelligent analysis and better formatting."""
+        """Enhanced Resume matching with intelligent analysis and better formatting."""
         start_time = time.time()
         
         # Get user config and validate setup

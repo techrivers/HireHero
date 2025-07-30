@@ -405,7 +405,7 @@ Score 90-100: Perfect match; 70-89: Good match; 50-69: Average; <50: Poor match"
         return results
 
     def process_optimized_cv_matching(self, db: Session, user_id: int, job_description: str) -> Dict[str, Any]:
-        """Optimized CV matching with all performance improvements."""
+        """Optimized Resume matching with all performance improvements."""
         start_time = time.time()
         
         # Validate setup

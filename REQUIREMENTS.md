@@ -12,7 +12,7 @@ The CV Matcher Agent is a comprehensive full-stack web application that intellig
 ## 🎯 Business Objectives
 
 ### Primary Goals
-- **Intelligent CV Matching**: Automatically match CVs to job descriptions using AI analysis
+- **Intelligent Resume Matching**: Automatically match Resume to job descriptions using AI analysis
 - **Streamlined Recruitment**: Reduce manual CV screening time by 80%
 - **Enhanced Decision Making**: Provide detailed AI-driven candidate analysis and recommendations
 - **Seamless Integration**: Connect with existing Google Drive workflows
@@ -142,7 +142,7 @@ The CV Matcher Agent is a comprehensive full-stack web application that intellig
   - File listing capabilities
 - **UI**: Debug information display for troubleshooting
 
-### 4. AI-Powered CV Matching
+### 4. AI-Powered Resume Matching
 
 #### 4.1 Job Description Processing
 - **Requirement**: Accept job descriptions for CV matching
@@ -274,7 +274,7 @@ The CV Matcher Agent is a comprehensive full-stack web application that intellig
 
 #### 2.1 Response Times
 - **API Endpoints**: < 200ms for standard operations
-- **CV Matching**: < 2 minutes for 100+ CVs
+- **Resume Matching**: < 2 minutes for 100+ CVs
 - **File Downloads**: < 5 seconds for typical CV files
 - **Authentication**: < 100ms for login/logout
 
@@ -396,7 +396,7 @@ The CV Matcher Agent is a comprehensive full-stack web application that intellig
 4. User record created in database
 5. Success response returned
 
-#### 2.2 CV Matching Flow
+#### 2.2 Resume Matching Flow
 1. User submits job description
 2. System validates configuration
 3. Google Drive CVs retrieved

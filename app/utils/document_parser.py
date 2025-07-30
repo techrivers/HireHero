@@ -123,7 +123,7 @@ class DocumentParser:
     
     @staticmethod
     def extract_candidate_name(text: str) -> Optional[str]:
-        """Extract candidate name from CV text using heuristics."""
+        """Extract candidate name from Resume text using heuristics."""
         lines = text.split('\n')
         
         # Look for name in first few lines
@@ -151,7 +151,7 @@ class DocumentParser:
     
     @staticmethod
     def extract_candidate_summary(text: str) -> str:
-        """Extract a summary from CV text."""
+        """Extract a summary from Resume text."""
         # Look for summary/objective sections
         summary_patterns = [
             r'summary\s*:?\s*(.*?)(?=\n\s*[A-Z]|\n\s*\n|$)',
@@ -178,7 +178,7 @@ class DocumentParser:
     
     @staticmethod
     def extract_complete_summary(text: str) -> str:
-        """Extract complete professional summary from CV."""
+        """Extract complete professional summary from Resume."""
         # Enhanced patterns for better summary extraction
         summary_patterns = [
             # Professional Summary with better boundaries
@@ -328,7 +328,7 @@ class DocumentParser:
     
     @staticmethod
     def extract_experience_years(text: str) -> Optional[int]:
-        """Extract years of experience from CV text."""
+        """Extract years of experience from Resume text."""
         # Look for experience patterns
         experience_patterns = [
             r'(\d+)\+?\s*years?\s*of\s*experience',

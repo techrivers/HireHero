@@ -1,15 +1,15 @@
-# CV Matcher Agent
+# Resume Matcher Agent
 
-A full-stack AI-powered web application for matching CVs to job descriptions using OpenAI and Google Drive integration.
+A full-stack AI-powered web application for matching Resumes to job descriptions using OpenAI and Google Drive integration.
 
 ## 🚀 Features
 
 - **React Frontend** with modern, responsive UI
 - **Multi-user authentication** with secure JWT tokens
-- **Google Drive integration** for CV storage and access
-- **OpenAI-powered CV matching** using embeddings and LLM analysis
+- **Google Drive integration** for Resume storage and access
+- **OpenAI-powered Resume matching** using embeddings and LLM analysis
 - **Interactive Dashboard** with real-time status monitoring
-- **CV Matching Interface** with detailed results and scoring
+- **Resume Matching Interface** with detailed results and scoring
 - **Configuration Management** for API keys and settings
 - **Matching History** with export capabilities
 - **Encrypted data storage** for API keys and tokens
@@ -20,7 +20,7 @@ A full-stack AI-powered web application for matching CVs to job descriptions usi
 ## 🏗️ Architecture
 
 ```
-cv-matcher-agent/
+resume-matcher-agent/
 ├── frontend/                # React Frontend Application
 │   ├── public/
 │   │   └── index.html
@@ -54,7 +54,7 @@ cv-matcher-agent/
 │   │   ├── auth.py          # Authentication endpoints
 │   │   ├── config.py        # User configuration
 │   │   ├── google_drive.py  # Google Drive integration
-│   │   └── cv_matching.py   # CV matching endpoints
+│   │   └── cv_matching.py   # Resume matching endpoints
 │   ├── services/            # Business logic
 │   │   ├── auth_service.py
 │   │   ├── google_drive_service.py
@@ -63,7 +63,7 @@ cv-matcher-agent/
 │   └── utils/               # Utility functions
 │       ├── auth.py          # JWT and password handling
 │       ├── encryption.py    # Data encryption
-│       └── document_parser.py # CV text extraction
+│       └── document_parser.py # Resume text extraction
 ├── Dockerfile               # Backend Docker configuration
 ├── docker-compose.yml       # Full-stack orchestration
 ├── requirements.txt         # Backend dependencies
@@ -137,12 +137,12 @@ docker-compose up -d --build
 3. Complete the setup process:
    - Connect your Google Drive account
    - Configure your OpenAI API key
-   - Set your CV folder name
-4. Start matching CVs to job descriptions!
+   - Set your Resume folder name
+4. Start matching Resume to job descriptions!
 
 ### Key Features
 - **Dashboard**: View system status and quick actions
-- **CV Matching**: Upload job descriptions and get AI-powered matches
+- **Resume Matching**: Upload job descriptions and get AI-powered matches
 - **Configuration**: Manage API keys and folder settings
 - **Google Drive Setup**: Connect and manage your Google Drive integration
 - **History**: View and export previous matching sessions
@@ -174,7 +174,7 @@ curl -X POST "http://localhost:9000/api/auth/login" \
   }'
 ```
 
-### 3. Match CVs
+### 3. Match Resume
 
 ```bash
 curl -X POST "http://localhost:9000/api/cv-matching/match" \
@@ -223,8 +223,8 @@ The project is designed to be modular and extensible:
 
 - **Users:** Store user accounts and authentication
 - **UserConfig:** Store encrypted API keys and configuration
-- **MatchLog:** Track CV matching sessions
-- **MatchResult:** Store individual CV match results
+- **MatchLog:** Track Resume matching sessions
+- **MatchResult:** Store individual Resume match results
 
 ## 🚦 Monitoring
 

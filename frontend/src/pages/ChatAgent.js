@@ -530,10 +530,10 @@ const ChatAgent = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      toast.success('CV downloaded successfully');
+      toast.success('Resume downloaded successfully');
     } catch (error) {
-      console.error('Error downloading CV:', error);
-      toast.error('Failed to download CV');
+      console.error('Error downloading Resume:', error);
+      toast.error('Failed to download Resume');
     }
   };
 
@@ -972,7 +972,7 @@ const ChatAgent = () => {
                   🎯 Search Results
                 </h3>
                 <div style={{ fontSize: '13px', color: '#6b7280' }}>
-                  <p style={{ margin: '4px 0' }}><strong>Total CVs:</strong> {searchResults.total_cvs_processed}</p>
+                  <p style={{ margin: '4px 0' }}><strong>Total Resumes:</strong> {searchResults.total_cvs_processed}</p>
                   <p style={{ margin: '4px 0' }}><strong>Matches:</strong> {searchResults.matches?.length || 0}</p>
                   <p style={{ margin: '4px 0' }}><strong>Processing Time:</strong> {searchResults.processing_time}</p>
                 </div>
@@ -1081,7 +1081,7 @@ const ChatAgent = () => {
 
             <div style={{ marginBottom: '20px' }}>
               <div style={{ display: 'flex', gap: '24px', fontSize: '14px' }}>
-                <span><strong>Total CVs:</strong> {searchResults.total_cvs_processed}</span>
+                <span><strong>Total Resumes:</strong> {searchResults.total_cvs_processed}</span>
                 <span><strong>Matches:</strong> {searchResults.matches?.length || 0}</span>
                 <span><strong>Processing Time:</strong> {searchResults.processing_time}</span>
               </div>
@@ -1196,7 +1196,7 @@ const ChatAgent = () => {
                         }}
                       >
                         <Download size={14} />
-                        Download CV
+                        Download Resume
                       </button>
                     </div>
                   )}

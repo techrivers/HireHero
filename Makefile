@@ -1,14 +1,14 @@
-# Makefile for CV Matcher Agent
+# Makefile for Resume Matcher Agent
 
 .PHONY: help setup build up down logs clean test init-db
 
 help:  ## Show this help message
-	@echo "CV Matcher Agent - Available Commands"
+	@echo "Resume Matcher Agent - Available Commands"
 	@echo "====================================="
 	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z_-]+:.*##/ { printf "  %-15s %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
 setup:  ## Setup the project (create .env if needed)
-	@echo "🚀 Setting up CV Matcher Agent..."
+	@echo "🚀 Setting up Resume Matcher Agent..."
 	@if [ ! -f .env ]; then \
 		cp .env.example .env; \
 		echo "📝 Created .env file from template"; \

@@ -33,7 +33,7 @@ function App() {
           <>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/chat-agent" element={<ChatAgent />} />
-            <Route path="/cv-matching" element={<CVMatching />} />
+            <Route path="/resume-matching" element={<CVMatching />} />
             <Route path="/configuration" element={<Configuration />} />
             <Route path="/google-drive-setup" element={<GoogleDriveSetup />} />
             <Route path="/history" element={<History />} />

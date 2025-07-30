@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Validation script for the optimized CV matching service.
+Validation script for the optimized Resume matching service.
 Validates that all optimizations are properly implemented.
 """
 
@@ -14,7 +14,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'app'))
 
 def validate_optimized_service():
     """Validate that the optimized service has all expected optimizations."""
-    print("🔍 Validating Optimized CV Matching Service Implementation")
+    print("🔍 Validating Optimized Resume Matching Service Implementation")
     print("=" * 60)
     
     try:
@@ -192,7 +192,7 @@ def main():
     
     if implemented_optimizations >= 8 and route_updated and methods_valid:
         print("\n🎉 VALIDATION PASSED!")
-        print("✅ Optimized CV matching service is properly implemented")
+        print("✅ Optimized Resume matching service is properly implemented")
         print("⚡ Expected performance improvement: 60-75% faster response times")
         
         print("\n🚀 Key Optimizations Active:")

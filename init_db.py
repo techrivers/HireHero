@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Database initialization and seeding script for CV Matcher Agent
+Database initialization and seeding script for Resume Matcher Agent
 """
 
 import os
@@ -93,7 +93,7 @@ def seed_users(engine):
 
 def main():
     """Main function."""
-    print("🚀 CV Matcher Agent Database Setup")
+    print("🚀 Resume Matcher Agent Database Setup")
     print("==================================")
     
     try:

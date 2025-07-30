@@ -180,7 +180,7 @@ const GoogleDriveSetup = () => {
           Google Drive Setup
         </h1>
         <p style={{ color: '#718096' }}>
-          Connect your Google Drive account to access your CV files
+          Connect your Google Drive account to access your Resume files
         </p>
       </div>
 
@@ -192,7 +192,7 @@ const GoogleDriveSetup = () => {
               Google Drive Integration
             </h2>
             <p style={{ color: '#718096', fontSize: '14px' }}>
-              Access and analyze CV files stored in your Google Drive
+              Access and analyze Resume files stored in your Google Drive
             </p>
           </div>
         </div>
@@ -262,9 +262,9 @@ const GoogleDriveSetup = () => {
                 Next Steps:
               </h3>
               <ul style={{ paddingLeft: '20px', color: '#4a5568' }}>
-                <li>Make sure your CV files are uploaded to Google Drive</li>
-                <li>Configure your CV folder name in the Configuration page</li>
-                <li>Start matching CVs to job descriptions</li>
+                <li>Make sure your Resume files are uploaded to Google Drive</li>
+                <li>Configure your Resume folder name in the Configuration page</li>
+                <li>Start matching Resumes to job descriptions</li>
               </ul>
             </div>
           </div>
@@ -275,7 +275,7 @@ const GoogleDriveSetup = () => {
                 Why Connect Google Drive?
               </h3>
               <ul style={{ paddingLeft: '20px', color: '#4a5568', lineHeight: '1.6' }}>
-                <li>Access your CV files directly from Google Drive</li>
+                <li>Access your Resume files directly from Google Drive</li>
                 <li>Automatically process and analyze resume documents</li>
                 <li>Keep your files secure and organized in one place</li>
                 <li>Support for PDF, DOC, and DOCX formats</li>

@@ -19,7 +19,7 @@ def match_cvs_to_job(
     current_user: User = Depends(get_current_user_dependency),
     db: Session = Depends(get_db)
 ):
-    """Match CVs against a job description with optimized performance."""
+    """Match Resume against a job description with optimized performance."""
     
     # Check if OpenAI is configured (minimum requirement)
     user_config = user_config_service.get_user_config(db, current_user.id)
@@ -30,7 +30,7 @@ def match_cvs_to_job(
         )
     
     try:
-        # Run optimized CV matching (60-75% faster than previous version)
+        # Run optimized Resume matching (60-75% faster than previous version)
         result = optimized_cv_matching_service.process_optimized_cv_matching(
             db, 
             current_user.id, 
@@ -47,7 +47,7 @@ def get_match_history(
     current_user: User = Depends(get_current_user_dependency),
     db: Session = Depends(get_db)
 ):
-    """Get user's CV matching history."""
+    """Get user's Resume matching history."""
     match_logs = db.query(MatchLog).filter(
         MatchLog.user_id == current_user.id
     ).order_by(MatchLog.created_at.desc()).limit(limit).all()
@@ -176,8 +176,8 @@ def download_cv(
     current_user: User = Depends(get_current_user_dependency),
     db: Session = Depends(get_db)
 ):
-    """Download a CV file from Google Drive."""
-    print(f"📥 CV download requested for file_id: {file_id} by user {current_user.id}")
+    """Download a Resume file from Google Drive."""
+    print(f"📥 Resume download requested for file_id: {file_id} by user {current_user.id}")
     
     try:
         # Verify user has Google Drive access
@@ -200,7 +200,7 @@ def download_cv(
                 filename = file_metadata.get('name', 'cv_file')
                 mime_type = file_metadata.get('mimeType', 'application/octet-stream')
                 
-                # Set appropriate content type for common CV formats
+                # Set appropriate content type for common Resume formats
                 if filename.lower().endswith('.pdf'):
                     content_type = 'application/pdf'
                 elif filename.lower().endswith('.docx'):
@@ -237,18 +237,18 @@ def download_cv(
     except HTTPException:
         raise
     except Exception as e:
-        print(f"❌ Error downloading CV: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to download CV: {str(e)}")
+        print(f"❌ Error downloading Resume: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to download Resume: {str(e)}")
 
 @router.get("/stats")
 def get_matching_stats(
     current_user: User = Depends(get_current_user_dependency),
     db: Session = Depends(get_db)
 ):
-    """Get user's CV matching statistics."""
+    """Get user's Resume matching statistics."""
     from sqlalchemy import func
     
-    # Get total matches and CVs processed
+    # Get total matches and Resume processed
     stats = db.query(
         func.count(MatchLog.id).label('total_matches'),
         func.sum(MatchLog.total_cvs_processed).label('total_cvs_processed'),

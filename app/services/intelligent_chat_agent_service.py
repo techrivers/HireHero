@@ -411,7 +411,7 @@ class IntelligentChatAgentService:
                         detected_pattern = {'skills': [keyword]}
                         break
             
-            system_prompt = f"""You are a CV matching assistant. Analyze the user's message and respond with valid JSON only.
+            system_prompt = f"""You are a Resume matching assistant. Analyze the user's message and respond with valid JSON only.
 
             Available CVs: {len(cv_summaries)}
             Available skills: {', '.join(available_skills[:15])}
@@ -685,7 +685,7 @@ class IntelligentChatAgentService:
             cv_experience = cv.get('experience', 0)
             cv_role = cv.get('role', '')
             
-            system_prompt = f"""You are an expert CV matching system. Calculate a precise semantic match score (0.0-1.0) between job criteria and CV.
+            system_prompt = f"""You are an expert Resume matching system. Calculate a precise semantic match score (0.0-1.0) between job criteria and CV.
             
             SCORING RULES:
             - Skills match (40%): Must-have skills are critical, nice-to-have adds bonus
@@ -977,7 +977,7 @@ class IntelligentChatAgentService:
         if intent == 'greeting':
             cv_count = len(cv_summaries)
             if cv_count > 0:
-                response_data['message'] = f"""👋 Hello! I'm your intelligent CV matching assistant with {cv_count} CVs ready for analysis.
+                response_data['message'] = f"""👋 Hello! I'm your intelligent Resume matching assistant with {cv_count} CVs ready for analysis.
 
 I can:
 • 🔍 Search for candidates based on skills, experience, and roles
@@ -987,7 +987,7 @@ I can:
 
 What kind of candidate are you looking for today?"""
             else:
-                response_data['message'] = """👋 Hello! I'm your intelligent CV matching assistant.
+                response_data['message'] = """👋 Hello! I'm your intelligent Resume matching assistant.
 
 🔄 **I'm currently analyzing your CVs from Google Drive...**
 This usually takes about 30-60 seconds for the first time.
@@ -1279,7 +1279,7 @@ Would you like me to adjust the search criteria?"""
         try:
             print(f"🤖 Starting smart CV search for query: {user_query}")
             
-            # Use the optimized CV matching service for real CV analysis
+            # Use the optimized Resume matching service for real CV analysis
             matching_service = self.cv_matching_service
             
             # Process the user query as a job description

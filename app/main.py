@@ -63,7 +63,7 @@ async def root():
     </head>
     <body>
         <h1 class="header">🤖 Resume Matcher Agent API</h1>
-        <p>Welcome to the Resume Matcher Agent - an AI-powered system for matching CVs to job descriptions.</p>
+        <p>Welcome to the Resume Matcher Agent - an AI-powered system for matching Resume to job descriptions.</p>
         
         <div class="section">
             <h2>📚 API Documentation</h2>
@@ -80,7 +80,7 @@ async def root():
                 <li><strong>Login:</strong> POST /auth/login</li>
                 <li><strong>Setup Google Drive:</strong> GET /google-drive/auth</li>
                 <li><strong>Configure OpenAI:</strong> POST /config/</li>
-                <li><strong>Match CVs:</strong> POST /cv-matching/match</li>
+                <li><strong>Match Resume:</strong> POST /cv-matching/match</li>
             </ol>
         </div>
         
@@ -104,12 +104,12 @@ async def root():
             
             <div class="endpoint">
                 <span class="method">POST</span> /config/
-                <div class="description">Configure OpenAI API key and CV folder</div>
+                <div class="description">Configure OpenAI API key and Resume folder</div>
             </div>
             
             <div class="endpoint">
                 <span class="method">POST</span> /cv-matching/match
-                <div class="description">Match CVs against job description</div>
+                <div class="description">Match Resume against job description</div>
             </div>
             
             <div class="endpoint">

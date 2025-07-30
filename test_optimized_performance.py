@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Performance test script for the optimized CV matching service.
+Performance test script for the optimized Resume matching service.
 Tests the key optimizations and validates the response format.
 """
 
@@ -93,8 +93,8 @@ class PerformanceTest:
             return None
     
     def test_matching_performance(self):
-        """Test the optimized CV matching performance."""
-        print("\n🚀 Testing Optimized CV Matching Performance...")
+        """Test the optimized Resume matching performance."""
+        print("\n🚀 Testing Optimized Reusme Matching Performance...")
         print("="*60)
         
         # Record start time

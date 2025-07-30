@@ -4,7 +4,7 @@
 You are an expert full-stack developer. Build a production-ready CV Matcher Agent web application with the following comprehensive specifications:
 
 ## 🎯 APPLICATION OVERVIEW
-Create a full-stack AI-powered recruitment assistant that integrates with Google Drive and uses OpenAI GPT-3.5/4 to intelligently match CVs with job requirements through natural language conversations. The application must support real-time chat capabilities, background CV processing, and semantic candidate matching with detailed analytics.
+Create a full-stack AI-powered recruitment assistant that integrates with Google Drive and uses OpenAI GPT-3.5/4 to intelligently match Resume with job requirements through natural language conversations. The application must support real-time chat capabilities, background CV processing, and semantic candidate matching with detailed analytics.
 
 ## 🏗️ TECHNICAL STACK REQUIREMENTS
 
@@ -65,7 +65,7 @@ GOOGLE_SCOPES=https://www.googleapis.com/auth/drive.readonly
 
 ### OpenAI Service Implementation
 ```python
-# Intent analysis for CV matching
+# Intent analysis for Resume matching
 async def analyze_search_intent(message: str) -> Dict[str, Any]:
     analysis_prompt = f"""
     Analyze this recruitment query and extract search criteria:
@@ -299,7 +299,7 @@ GET  /api/chat/suggestions               # Get query suggestions
 GET  /api/chat/status                    # Get processing status
 ```
 
-### CV Matching Routes (`/api/cv-matching/*`)
+### Resume Matching Routes (`/api/cv-matching/*`)
 ```python
 POST /api/cv-matching/match              # Execute CV matching
 GET  /api/cv-matching/history            # Get matching history
@@ -662,7 +662,7 @@ I'm analyzing the CVs in your Google Drive folder to build candidate profiles. T
             }
 ```
 
-### Optimized CV Matching Service
+### Optimized Resume Matching Service
 ```python
 import asyncio
 import json
@@ -737,7 +737,7 @@ class OptimizedCVMatchingService:
             return matches
             
         except Exception as e:
-            print(f"❌ Error in CV matching: {e}")
+            print(f"❌ Error in Resume matching: {e}")
             return []
     
     def build_search_query(self, criteria: Dict) -> str:
@@ -1067,5 +1067,5 @@ If WebSocket connection fails, the frontend automatically falls back to REST API
 6. **README Documentation**: Step-by-step setup instructions with troubleshooting
 7. **Working Application**: Fully functional system accessible at http://localhost:3002
 
-The final CV Matcher Agent represents enterprise-grade architecture with production-ready features including real-time chat, intelligent CV matching, and comprehensive Google Drive integration. The system is designed for scalability, maintainability, and exceptional user experience.
+The final CV Matcher Agent represents enterprise-grade architecture with production-ready features including real-time chat, intelligent Resume matching, and comprehensive Google Drive integration. The system is designed for scalability, maintainability, and exceptional user experience.
 ```

@@ -208,7 +208,7 @@ Check the `enhanced_summary.processing_time` field in API responses:
 ✅ **Automatic caching and smart filtering active**  
 ✅ **Parallel processing and batch operations working**  
 
-The CV Matcher Agent now processes CV matching requests **60-75% faster** while maintaining full compatibility with the existing frontend and API contracts.
+The CV Matcher Agent now processes Resume matching requests **60-75% faster** while maintaining full compatibility with the existing frontend and API contracts.
 
 ---
 

@@ -1,7 +1,7 @@
-# CV Matcher Agent - Project Structure
+# Resume Matcher Agent - Project Structure
 
 ```
-cv-matcher-agent/
+resume-matcher-agent/
 ├── README.md                    # Main documentation
 ├── Makefile                     # Development commands
 ├── setup.sh                     # Automated setup script
@@ -26,18 +26,18 @@ cv-matcher-agent/
     │   ├── auth.py              # Authentication
     │   ├── config.py            # User configuration
     │   ├── google_drive.py      # Google Drive integration
-    │   └── cv_matching.py       # CV matching logic
+    │   └── cv_matching.py       # Resume matching logic
     ├── services/                # Business logic
     │   ├── __init__.py
     │   ├── auth_service.py      # Authentication service
     │   ├── google_drive_service.py # Google Drive service
-    │   ├── cv_matching_service.py # CV matching service
+    │   ├── cv_matching_service.py # Resume matching service
     │   └── user_config_service.py # User config service
     └── utils/                   # Utility functions
         ├── __init__.py
         ├── auth.py              # JWT & password utils
         ├── encryption.py        # Data encryption
-        └── document_parser.py   # CV text extraction
+        └── document_parser.py   # Resume text extraction
 ```
 
 ## Key Components
@@ -54,9 +54,9 @@ cv-matcher-agent/
 - File listing and download
 - Support for multiple document formats (PDF, DOCX, TXT)
 
-### 🤖 AI-Powered CV Matching
+### 🤖 AI-Powered Resume Matching
 - OpenAI embeddings for semantic similarity
-- LLM-based CV analysis and scoring
+- LLM-based Resume analysis and scoring
 - Candidate information extraction
 - Relevance scoring and ranking
 

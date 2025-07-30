@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test script for CV Matcher Agent API endpoints
+Test script for Resume Matcher Agent API endpoints
 """
 
 import requests
@@ -192,7 +192,7 @@ class CVMatcherTester:
     
     def run_all_tests(self) -> Dict[str, bool]:
         """Run all tests."""
-        print("🧪 CV Matcher Agent API Tests")
+        print("🧪 Resume Matcher Agent API Tests")
         print("=============================")
         
         results = {}
@@ -240,7 +240,7 @@ def main():
     """Main function."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Test CV Matcher Agent API")
+    parser = argparse.ArgumentParser(description="Test Resume Matcher Agent API")
     parser.add_argument("--url", default="http://localhost:8000", help="Base URL of the API")
     parser.add_argument("--wait", type=int, default=0, help="Wait time before starting tests")
     

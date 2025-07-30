@@ -60,7 +60,7 @@ class GoogleDriveAuth(BaseModel):
 class GoogleDriveCallback(BaseModel):
     code: str
 
-# CV Matching Schemas
+# Resume Matching Schemas
 class MatchRequest(BaseModel):
     job_description: str
 

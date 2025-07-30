@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# CV Matcher Agent - Setup Script
+# Resume Matcher Agent - Setup Script
 
-echo "🤖 CV Matcher Agent Setup"
+echo "🤖 Resume Matcher Agent Setup"
 echo "========================="
 
 # Check if Docker is installed
@@ -66,7 +66,7 @@ sleep 10
 if docker-compose ps | grep -q "Up"; then
     echo "✅ Services are running!"
     echo ""
-    echo "🚀 CV Matcher Agent is ready!"
+    echo "🚀 Resume Matcher Agent is ready!"
     echo "============================="
     echo ""
     echo "📖 Access points:"
@@ -84,7 +84,7 @@ if docker-compose ps | grep -q "Up"; then
     echo "1. Register a user account"
     echo "2. Setup Google Drive authentication"
     echo "3. Configure OpenAI API key"
-    echo "4. Start matching CVs!"
+    echo "4. Start matching Resume!"
 else
     echo "❌ Some services failed to start. Check logs with:"
     echo "docker-compose logs"

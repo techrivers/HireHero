@@ -403,7 +403,7 @@ CRITICAL: Always include GAPS section when requirements from job description are
         return min(100, score)
     
     def process_cv_matching(self, db: Session, user_id: int, job_description: str) -> Dict[str, Any]:
-        """Process CV matching with intelligent algorithm."""
+        """Process Resume matching with intelligent algorithm."""
         import time
         
         # Get user config

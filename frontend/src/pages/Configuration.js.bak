@@ -174,7 +174,7 @@ const Configuration = () => {
           )}
         </div>
 
-        {/* Resume Folder Configuration */}
+        {/* Resume Folder Configuration */
         <div className="card">
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
             <Folder size={24} style={{ color: '#3182ce' }} />
@@ -196,7 +196,7 @@ const Configuration = () => {
               id="cv_folder_name"
               className="form-input"
               type="text"
-              placeholder="e.g., Resumes, Candidates, Documents"
+              placeholder="e.g., CVs, Resumes, Candidates"
               {...register('cv_folder_name', { 
                 required: 'Resume folder name is required'
               })}
