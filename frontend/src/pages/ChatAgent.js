@@ -12,11 +12,32 @@ import {
   Download,
   Trash2,
   MessageCircle,
-  ChevronRight
+  ChevronRight,
+  Edit3,
+  Check,
+  X
 } from 'lucide-react';
 
-const ChatHistoryItem = ({ chat, onLoadChat, onDeleteChat }) => {
+const ChatHistoryItem = ({ chat, onLoadChat, onDeleteChat, onRenameChat }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [newTitle, setNewTitle] = useState(chat.title);
+  
+  const handleRename = () => {
+    if (newTitle.trim() && newTitle !== chat.title) {
+      onRenameChat(chat.id, newTitle.trim());
+    }
+    setIsRenaming(false);
+  };
+  
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleRename();
+    } else if (e.key === 'Escape') {
+      setNewTitle(chat.title);
+      setIsRenaming(false);
+    }
+  };
   
   return (
     <div
@@ -25,26 +46,47 @@ const ChatHistoryItem = ({ chat, onLoadChat, onDeleteChat }) => {
         margin: '4px 0',
         borderRadius: '6px',
         backgroundColor: chat.isActive ? '#2d2d2d' : 'transparent',
-        cursor: 'pointer',
+        cursor: isRenaming ? 'default' : 'pointer',
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
         fontSize: '14px',
         position: 'relative'
       }}
-      onClick={() => onLoadChat(chat.id)}
+      onClick={isRenaming ? undefined : () => onLoadChat(chat.id)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <MessageCircle size={16} style={{ opacity: 0.7 }} />
       <div style={{ flex: 1, overflow: 'hidden' }}>
-        <div style={{ 
-          whiteSpace: 'nowrap', 
-          overflow: 'hidden', 
-          textOverflow: 'ellipsis' 
-        }}>
-          {chat.title}
-        </div>
+        {isRenaming ? (
+          <input
+            type="text"
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            onKeyDown={handleKeyPress}
+            onBlur={handleRename}
+            autoFocus
+            style={{
+              background: '#404040',
+              border: '1px solid #666',
+              borderRadius: '4px',
+              padding: '4px 6px',
+              color: 'white',
+              fontSize: '14px',
+              width: '100%',
+              outline: 'none'
+            }}
+          />
+        ) : (
+          <div style={{ 
+            whiteSpace: 'nowrap', 
+            overflow: 'hidden', 
+            textOverflow: 'ellipsis' 
+          }}>
+            {chat.title}
+          </div>
+        )}
         <div style={{ 
           fontSize: '12px', 
           color: '#999', 
@@ -53,22 +95,41 @@ const ChatHistoryItem = ({ chat, onLoadChat, onDeleteChat }) => {
           {new Date(chat.timestamp).toLocaleDateString()}
         </div>
       </div>
-      {isHovered && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDeleteChat(chat.id);
-          }}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: '#999',
-            cursor: 'pointer',
-            padding: '4px'
-          }}
-        >
-          <Trash2 size={14} />
-        </button>
+      {isHovered && !isRenaming && (
+        <div style={{ display: 'flex', gap: '4px' }}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsRenaming(true);
+            }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#999',
+              cursor: 'pointer',
+              padding: '4px'
+            }}
+            title="Rename chat"
+          >
+            <Edit3 size={14} />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDeleteChat(chat.id);
+            }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#999',
+              cursor: 'pointer',
+              padding: '4px'
+            }}
+            title="Delete chat"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
       )}
     </div>
   );
@@ -223,7 +284,8 @@ const ChatAgent = () => {
     };
     setMessages(prev => [...prev, userMessage]);
 
-    if (messages.length === 1 && currentChatTitle === 'New Chat') {
+    // Set chat title based on first user message
+    if (messages.length === 0 && currentChatTitle === 'New Chat') {
       const title = message.length > 50 ? message.substring(0, 50) + '...' : message;
       setCurrentChatTitle(title);
       
@@ -429,6 +491,32 @@ const ChatAgent = () => {
     }
   };
 
+  const renameChat = async (chatId, newTitle) => {
+    try {
+      // Update local state immediately for better UX
+      setChatHistory(prev => prev.map(chat => 
+        chat.id === chatId 
+          ? { ...chat, title: newTitle }
+          : chat
+      ));
+      
+      // Update current chat title if it's the active chat
+      if (sessionId === chatId) {
+        setCurrentChatTitle(newTitle);
+      }
+      
+      // TODO: Add API call to backend to persist the rename
+      // await axios.patch(`/chat/conversation/${chatId}`, { title: newTitle });
+      
+      toast.success('Chat renamed successfully');
+    } catch (error) {
+      console.error('Error renaming chat:', error);
+      toast.error('Failed to rename chat');
+      // Revert the change if API fails
+      loadConversationHistory();
+    }
+  };
+
   const downloadCV = async (downloadUrl, filename) => {
     try {
       const response = await fetch(downloadUrl);
@@ -464,12 +552,32 @@ const ChatAgent = () => {
   };
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      height: '100vh', 
-      backgroundColor: '#ffffff',
-      fontFamily: 'system-ui, -apple-system, sans-serif'
-    }}>
+    <>
+      <style>
+        {`
+          .chat-messages-container::-webkit-scrollbar {
+            width: 8px;
+          }
+          .chat-messages-container::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          .chat-messages-container::-webkit-scrollbar-thumb {
+            background-color: #d1d5db;
+            border-radius: 20px;
+            border: transparent;
+          }
+          .chat-messages-container::-webkit-scrollbar-thumb:hover {
+            background-color: #9ca3af;
+          }
+        `}
+      </style>
+      
+      <div style={{ 
+        display: 'flex', 
+        height: '100vh', 
+        backgroundColor: '#ffffff',
+        fontFamily: 'system-ui, -apple-system, sans-serif'
+      }}>
       
       {/* Left Sidebar - Chat History */}
       <div style={{
@@ -516,7 +624,8 @@ const ChatAgent = () => {
               key={chat.id} 
               chat={chat} 
               onLoadChat={loadChat} 
-              onDeleteChat={deleteChat} 
+              onDeleteChat={deleteChat}
+              onRenameChat={renameChat}
             />
           ))}
         </div>
@@ -596,7 +705,9 @@ const ChatAgent = () => {
         {/* Messages Container */}
         <div style={{
           flex: 1,
-          display: 'flex'
+          display: 'flex',
+          minHeight: 0, // This ensures flex child can shrink below its content size
+          overflow: 'hidden' // Prevents the container from expanding beyond viewport
         }}>
           
           {/* Messages Area */}
@@ -607,17 +718,24 @@ const ChatAgent = () => {
           }}>
 
             {/* Messages Scroll Area */}
-            <div style={{ 
-              flex: 1, 
-              overflowY: 'auto', 
-              padding: '24px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '24px',
-              maxWidth: '800px',
-              margin: '0 auto',
-              width: '100%'
-            }}>
+            <div 
+              style={{ 
+                flex: 1, 
+                overflowY: 'auto', 
+                padding: '24px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '24px',
+                maxWidth: '800px',
+                margin: '0 auto',
+                width: '100%',
+                scrollBehavior: 'smooth',
+                // Custom scrollbar styling like ChatGPT
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#d1d5db #f9fafb'
+              }}
+              className="chat-messages-container"
+            >
               {messages.map((message) => (
                 <div
                   key={message.id}
@@ -1088,7 +1206,8 @@ const ChatAgent = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 };
 
