@@ -1,15 +1,17 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
-import Navbar from './components/Navbar';
+import Layout from './components/Layout';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
+import EnhancedDashboard from './pages/EnhancedDashboard';
 import CVMatching from './pages/CVMatching';
 import ChatAgent from './pages/ChatAgent';
 import Configuration from './pages/Configuration';
 import GoogleDriveSetup from './pages/GoogleDriveSetup';
 import History from './pages/History';
+import Analytics from './pages/Analytics';
+import Candidates from './pages/Candidates';
 import LoadingSpinner from './components/LoadingSpinner';
 
 function App() {
@@ -21,7 +23,6 @@ function App() {
 
   return (
     <div className="App">
-      {user && <Navbar />}
       <Routes>
         {!user ? (
           <>
@@ -30,16 +31,22 @@ function App() {
             <Route path="*" element={<Navigate to="/login" />} />
           </>
         ) : (
-          <>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/chat-agent" element={<ChatAgent />} />
-            <Route path="/resume-matching" element={<CVMatching />} />
-            <Route path="/configuration" element={<Configuration />} />
-            <Route path="/google-drive-setup" element={<GoogleDriveSetup />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/" element={<Navigate to="/dashboard" />} />
-            <Route path="*" element={<Navigate to="/dashboard" />} />
-          </>
+          <Route path="*" element={
+            <Layout>
+              <Routes>
+                <Route path="/dashboard" element={<EnhancedDashboard />} />
+                <Route path="/chat-agent" element={<ChatAgent />} />
+                <Route path="/cv-matching" element={<CVMatching />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/candidates" element={<Candidates />} />
+                <Route path="/configuration" element={<Configuration />} />
+                <Route path="/google-drive-setup" element={<GoogleDriveSetup />} />
+                <Route path="/history" element={<History />} />
+                <Route path="/" element={<Navigate to="/dashboard" />} />
+                <Route path="*" element={<Navigate to="/dashboard" />} />
+              </Routes>
+            </Layout>
+          } />
         )}
       </Routes>
     </div>

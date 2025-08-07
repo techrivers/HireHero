@@ -65,7 +65,7 @@ const Dashboard = () => {
 
   const fetchRecentMatches = async () => {
     try {
-      const response = await axios.get('/resume-matching/history?limit=5');
+      const response = await axios.get('/cv-matching/history?limit=5');
       setRecentMatches(response.data);
     } catch (error) {
       console.error('Error fetching recent matches:', error);
@@ -190,7 +190,7 @@ const Dashboard = () => {
           gap: '16px' 
         }}>
           <Link 
-            to="/resume-matching"
+            to="/cv-matching"
             className="btn btn-primary"
             style={{ 
               padding: '20px', 

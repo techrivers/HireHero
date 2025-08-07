@@ -11,11 +11,18 @@ services:
       - cv-matcher-network
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
     ports:
       - "3002:3002"
     environment:
       - REACT_APP_API_URL=http://localhost:9000/api
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
     depends_on:
       - web
     networks:

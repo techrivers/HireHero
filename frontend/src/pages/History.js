@@ -28,7 +28,7 @@ const History = () => {
 
   const fetchHistory = async () => {
     try {
-      const response = await axios.get('/resume-matching/history');
+      const response = await axios.get('/cv-matching/history');
       setMatches(response.data);
     } catch (error) {
       toast.error('Failed to fetch matching history');
@@ -43,7 +43,7 @@ const History = () => {
     }
 
     try {
-      await axios.delete(`/resume-matching/history/${matchId}`);
+      await axios.delete(`/cv-matching/history/${matchId}`);
       setMatches(matches.filter(match => match.id !== matchId));
       toast.success('Match deleted successfully');
     } catch (error) {
@@ -53,7 +53,7 @@ const History = () => {
 
   const exportMatch = async (matchId) => {
     try {
-      const response = await axios.get(`/resume-matching/export/${matchId}`, {
+      const response = await axios.get(`/cv-matching/export/${matchId}`, {
         responseType: 'blob'
       });
       
@@ -73,7 +73,7 @@ const History = () => {
 
   const viewDetails = async (matchId) => {
     try {
-      const response = await axios.get(`/resume-matching/history/${matchId}`);
+      const response = await axios.get(`/cv-matching/history/${matchId}`);
       setSelectedMatch(response.data);
       setShowDetails(true);
     } catch (error) {

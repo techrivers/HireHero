@@ -354,7 +354,7 @@ const CVMatching = () => {
     setCancelTokenSource(source);
     
     try {
-      const response = await axios.post('/resume-matching/match', data, {
+      const response = await axios.post('/cv-matching/match', data, {
         cancelToken: source.token,
         timeout: 300000, // 5 minute timeout
       });
@@ -431,7 +431,7 @@ const CVMatching = () => {
     if (!matchId) return;
     
     try {
-      const response = await axios.get(`/resume-matching/export/${matchId}`, {
+      const response = await axios.get(`/cv-matching/export/${matchId}`, {
         responseType: 'blob'
       });
       
@@ -462,7 +462,7 @@ const CVMatching = () => {
       console.log('📥 Starting download request...');
       toast.info('Downloading CV...');
       
-      const url = `/resume-matching/download-resume/${googleDriveFileId}`;
+      const url = `/cv-matching/download-cv/${googleDriveFileId}`;
       console.log('🌐 Download URL:', url);
       
       const response = await axios.get(url, {
