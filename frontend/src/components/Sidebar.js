@@ -13,7 +13,11 @@ import {
   X,
   User,
   BarChart3,
-  Users
+  Users,
+  Briefcase,
+  Globe,
+  Zap,
+  Brain
 } from 'lucide-react';
 import './Sidebar.css';
 
@@ -42,15 +46,36 @@ const Sidebar = () => {
       category: 'main'
     },
     { 
-      path: '/analytics', 
-      label: 'Analytics', 
-      icon: BarChart3,
-      category: 'insights'
+      path: '/matching', 
+      label: 'AI Matching', 
+      icon: Brain,
+      category: 'enhanced',
+      badge: 'New'
     },
     { 
       path: '/candidates', 
       label: 'Candidates', 
       icon: Users,
+      category: 'enhanced'
+    },
+    { 
+      path: '/jobs', 
+      label: 'Jobs', 
+      icon: Briefcase,
+      category: 'enhanced',
+      badge: 'New'
+    },
+    { 
+      path: '/career-pages', 
+      label: 'Career Pages', 
+      icon: Globe,
+      category: 'enhanced',
+      badge: 'New'
+    },
+    { 
+      path: '/analytics', 
+      label: 'Analytics', 
+      icon: BarChart3,
       category: 'insights'
     },
     { 
@@ -75,6 +100,7 @@ const Sidebar = () => {
 
   const categories = {
     main: 'Main',
+    enhanced: 'Enhanced AI Features',
     insights: 'Insights',
     settings: 'Settings'
   };
@@ -126,7 +152,12 @@ const Sidebar = () => {
                       <Icon size={20} />
                     </div>
                     {!isCollapsed && (
-                      <span className="nav-label">{item.label}</span>
+                      <span className="nav-label">
+                        {item.label}
+                        {item.badge && (
+                          <span className="nav-badge">{item.badge}</span>
+                        )}
+                      </span>
                     )}
                     {isActive && <div className="active-indicator" />}
                   </Link>

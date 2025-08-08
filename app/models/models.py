@@ -93,3 +93,117 @@ class ChatMessage(Base):
     
     # Relationships
     conversation = relationship("ChatConversation", back_populates="messages")
+
+# Enhanced Candidate Module Models
+
+class Job(Base):
+    __tablename__ = "jobs"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(200), nullable=False, index=True)
+    company = Column(String(100), nullable=False)
+    url = Column(Text)
+    description = Column(Text, nullable=False)
+    required_skills = Column(JSON)  # JSON array of required skills
+    experience_level = Column(String(50))  # entry, mid, senior, executive
+    salary_range = Column(String(100))  # Optional salary information
+    location = Column(String(100))  # Job location
+    remote_friendly = Column(Boolean, default=False)
+    posted_date = Column(DateTime(timezone=True))
+    expiry_date = Column(DateTime(timezone=True))  # Optional expiry date
+    status = Column(String(20), default="active")  # active, expired, filled
+    scrape_source = Column(String(100))  # Which career page this came from
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Relationships
+    job_matches = relationship("JobMatch", back_populates="job", cascade="all, delete-orphan")
+
+class Candidate(Base):
+    __tablename__ = "candidates"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False, index=True)
+    email = Column(String(100), index=True)
+    phone = Column(String(20))
+    cv_filename = Column(String(255), nullable=False)
+    skills_json = Column(JSON)  # Comprehensive skills with proficiency levels
+    experience_years = Column(Integer, default=0)
+    education = Column(JSON)  # Education history as JSON
+    certifications = Column(JSON)  # Certifications as JSON
+    professional_summary = Column(Text)
+    current_role = Column(String(100))
+    current_company = Column(String(100))
+    preferred_locations = Column(JSON)  # Preferred work locations
+    remote_preference = Column(Boolean, default=True)
+    availability_status = Column(String(20), default="available")  # available, employed, interviewing
+    salary_expectation = Column(String(100))
+    google_drive_file_id = Column(String(100), index=True)
+    last_updated = Column(DateTime(timezone=True), server_default=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relationships
+    job_matches = relationship("JobMatch", back_populates="candidate", cascade="all, delete-orphan")
+
+class JobMatch(Base):
+    __tablename__ = "job_matches"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    job_id = Column(Integer, ForeignKey("jobs.id"), nullable=False)
+    candidate_id = Column(Integer, ForeignKey("candidates.id"), nullable=False)
+    match_score = Column(Float, nullable=False, index=True)  # 0.0 to 1.0
+    explanation = Column(Text)  # AI-generated explanation for the match
+    extra_skills = Column(JSON)  # Skills beyond job requirements
+    alternative_roles = Column(JSON)  # Alternative job suggestions
+    strengths = Column(JSON)  # Key strengths for this match
+    gaps = Column(JSON)  # Skill/experience gaps
+    recommendation = Column(String(20), default="consider")  # strong, consider, weak
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Relationships
+    job = relationship("Job", back_populates="job_matches")
+    candidate = relationship("Candidate", back_populates="job_matches")
+
+class CareerPageConfig(Base):
+    __tablename__ = "career_page_configs"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    company_name = Column(String(100), nullable=False)
+    career_url = Column(Text, nullable=False)
+    scrape_frequency = Column(Integer, default=24)  # Hours between scrapes
+    is_active = Column(Boolean, default=True)
+    scraping_rules = Column(JSON)  # Custom scraping configuration
+    authentication_data = Column(Text)  # Encrypted login credentials if needed
+    last_scraped = Column(DateTime(timezone=True))
+    last_success = Column(Boolean, default=True)
+    error_message = Column(Text)  # Last error if scraping failed
+    jobs_found_count = Column(Integer, default=0)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Relationships
+    user = relationship("User", back_populates="career_page_configs")
+
+class RefreshSchedule(Base):
+    __tablename__ = "refresh_schedules"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    job_refresh_interval = Column(Integer, default=24)  # Hours
+    cv_refresh_interval = Column(Integer, default=6)  # Hours
+    auto_matching_enabled = Column(Boolean, default=True)
+    last_job_refresh = Column(DateTime(timezone=True))
+    last_cv_refresh = Column(DateTime(timezone=True))
+    last_matching_run = Column(DateTime(timezone=True))
+    refresh_status = Column(String(20), default="idle")  # idle, running, error
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Relationships
+    user = relationship("User", back_populates="refresh_schedule")
+
+# Enhanced existing models relationships
+User.career_page_configs = relationship("CareerPageConfig", back_populates="user", cascade="all, delete-orphan")
+User.refresh_schedule = relationship("RefreshSchedule", back_populates="user", cascade="all, delete-orphan")

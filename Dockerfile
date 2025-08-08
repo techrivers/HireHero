@@ -3,7 +3,7 @@ FROM python:3.11-slim
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies including Chrome for Selenium
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
@@ -13,7 +13,17 @@ RUN apt-get update && apt-get install -y \
     libtesseract-dev \
     antiword \
     unrtf \
+    wget \
+    curl \
+    gnupg \
+    unzip \
+    chromium \
+    chromium-driver \
     && rm -rf /var/lib/apt/lists/*
+
+# Set Chrome binary path for Selenium
+ENV CHROME_BIN=/usr/bin/chromium
+ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
 
 # Copy requirements first for better caching
 COPY requirements.txt .

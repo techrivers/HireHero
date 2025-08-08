@@ -4,6 +4,10 @@ from fastapi.responses import HTMLResponse
 from app.models import create_tables
 from app.routes import auth_router, google_drive_router, config_router, cv_matching_router, chat_agent_router
 from app.api.analytics import router as analytics_router
+from app.routes.jobs import router as jobs_router
+from app.routes.candidates import router as candidates_router
+from app.routes.career_pages import router as career_pages_router
+from app.routes.matching import router as matching_router
 import os
 from dotenv import load_dotenv
 
@@ -43,6 +47,12 @@ app.include_router(config_router, prefix="/api")
 app.include_router(cv_matching_router, prefix="/api")
 app.include_router(chat_agent_router, prefix="/api")
 app.include_router(analytics_router, prefix="/api/analytics", tags=["Analytics"])
+
+# Enhanced Candidate Module routers
+app.include_router(jobs_router, prefix="/api")
+app.include_router(candidates_router, prefix="/api")
+app.include_router(career_pages_router, prefix="/api")
+app.include_router(matching_router, prefix="/api")
 
 @app.get("/", response_class=HTMLResponse)
 async def root():

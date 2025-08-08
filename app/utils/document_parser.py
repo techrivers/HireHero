@@ -1,7 +1,7 @@
 import io
 import os
 from typing import List, Optional, Tuple
-from pdfminer.six.high_level import extract_text
+from pdfminer.high_level import extract_text
 from docx import Document
 import re
 
@@ -19,11 +19,19 @@ class DocumentParser:
                 return ""
             
             # Use the proper pdfminer API for BytesIO
-            from pdfminer.six.pdfinterp import PDFResourceManager, PDFPageInterpreter
-            from pdfminer.six.converter import TextConverter
-            from pdfminer.six.layout import LAParams
-            from pdfminer.six.pdfpage import PDFPage
-            from io import StringIO
+            try:
+                from pdfminer.six.pdfinterp import PDFResourceManager, PDFPageInterpreter
+                from pdfminer.six.converter import TextConverter
+                from pdfminer.six.layout import LAParams
+                from pdfminer.six.pdfpage import PDFPage
+                from io import StringIO
+            except ImportError:
+                # Fallback to old pdfminer API
+                from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+                from pdfminer.converter import TextConverter
+                from pdfminer.layout import LAParams
+                from pdfminer.pdfpage import PDFPage
+                from io import StringIO
             
             print(f"✅ PDF extraction: Using pdfminer components")
             
@@ -66,7 +74,10 @@ class DocumentParser:
             # Fallback: try using PyPDF2 or another library
             try:
                 print("🔄 Trying fallback PDF extraction with PyPDF2...")
-                import pypdf2 as PyPDF2
+                try:
+                    import pypdf2 as PyPDF2
+                except ImportError:
+                    import PyPDF2
                 
                 pdf_stream = io.BytesIO(file_content)
                 pdf_reader = PyPDF2.PdfReader(pdf_stream)

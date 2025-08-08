@@ -12,6 +12,9 @@ import GoogleDriveSetup from './pages/GoogleDriveSetup';
 import History from './pages/History';
 import Analytics from './pages/Analytics';
 import Candidates from './pages/Candidates';
+import Jobs from './pages/Jobs';
+import CareerPages from './pages/CareerPages';
+import EnhancedMatching from './pages/EnhancedMatching';
 import LoadingSpinner from './components/LoadingSpinner';
 
 function App() {
@@ -39,6 +42,9 @@ function App() {
                 <Route path="/cv-matching" element={<CVMatching />} />
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/candidates" element={<Candidates />} />
+                <Route path="/jobs" element={<Jobs />} />
+                <Route path="/career-pages" element={<CareerPages />} />
+                <Route path="/matching" element={<EnhancedMatching />} />
                 <Route path="/configuration" element={<Configuration />} />
                 <Route path="/google-drive-setup" element={<GoogleDriveSetup />} />
                 <Route path="/history" element={<History />} />
